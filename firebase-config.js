@@ -1,12 +1,14 @@
 // Firebase Configuration
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
-    apiKey: "YOUR_API_KEY",
-    authDomain: "YOUR_AUTH_DOMAIN",
-    databaseURL: "YOUR_DATABASE_URL",
-    projectId: "YOUR_PROJECT_ID",
-    storageBucket: "YOUR_STORAGE_BUCKET",
-    messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-    appId: "YOUR_APP_ID"
+  apiKey: "AIzaSyAvrOrtDrcvgp7Z2iJ1Ha4Jjj2-dl0rR9E",
+  authDomain: "queue-bb674.firebaseapp.com",
+  databaseURL: "https://queue-bb674-default-rtdb.firebaseio.com",
+  projectId: "queue-bb674",
+  storageBucket: "queue-bb674.firebasestorage.app",
+  messagingSenderId: "74148025688",
+  appId: "1:74148025688:web:c70208c78e6b34b9fd012d",
+  measurementId: "G-4RVFXJ8HFH"
 };
 
 // Initialize Firebase
