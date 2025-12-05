@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>صفحة العميل - نظام إدارة الانتظار</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .clinic-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 16px;
+            padding: 2rem;
+            margin: 1rem;
+            text-align: center;
+            color: white;
+            transition: all 0.3s ease;
+        }
+        
+        .clinic-card:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+        
+        .current-number {
+            font-size: 4rem;
+            font-weight: bold;
+            color: #4facfe;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            margin: 1rem 0;
+        }
+        
+        .client-input {
+            background: rgba(255, 255, 255, 0.9);
+            border: 2px solid transparent;
+            border-radius: 12px;
+            padding: 1rem;
+            font-size: 1.2rem;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        
+        .client-input:focus {
+            outline: none;
+            border-color: #4facfe;
+            box-shadow: 0 0 20px rgba(79, 172, 254, 0.3);
+        }
+        
+        .notification-popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 2rem;
+            border-radius: 16px;
+            box-shadow: 0 20px 25px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+        }
+        
+        .pulse-animation {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        .waiting-indicator {
+            position: relative;
+            width: 60px;
+            height: 60px;
+            margin: 1rem auto;
+        }
+        
+        .waiting-indicator div {
+            position: absolute;
+            width: 13px;
+            height: 13px;
+            border-radius: 50%;
+            background: #4facfe;
+            animation: waiting 1.2s linear infinite;
+        }
+        
+        .waiting-indicator div:nth-child(1) { animation-delay: 0s; top: 0; left: 25px; }
+        .waiting-indicator div:nth-child(2) { animation-delay: 0.1s; top: 8px; left: 42px; }
+        .waiting-indicator div:nth-child(3) { animation-delay: 0.2s; top: 25px; left: 47px; }
+        .waiting-indicator div:nth-child(4) { animation-delay: 0.3s; top: 42px; left: 42px; }
+        .waiting-indicator div:nth-child(5) { animation-delay: 0.4s; top: 47px; left: 25px; }
+        .waiting-indicator div:nth-child(6) { animation-delay: 0.5s; top: 42px; left: 8px; }
+        .waiting-indicator div:nth-child(7) { animation-delay: 0.6s; top: 25px; left: 3px; }
+        .waiting-indicator div:nth-child(8) { animation-delay: 0.7s; top: 8px; left: 8px; }
+        
+        @keyframes waiting {
+            0%, 20%, 80%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.5); opacity: 0.5; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="p-6 text-center">
+        <h1 class="text-4xl font-bold text-white mb-2">صفحة متابعة العميل</h1>
+        <p class="text-white opacity-90">تابع دورك من أي مكان</p>
+    </div>
+
+    <!-- Clinic Selection -->
+    <div class="container mx-auto px-6 mb-8">
+        <div class="max-w-md mx-auto">
+            <label class="block text-white text-lg mb-2">اختر العيادة</label>
+            <select id="clinicSelect" class="client-input w-full" onchange="selectClinic()">
+                <option value="">اختر العيادة</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- Client Number Input -->
+    <div id="clientInputSection" class="container mx-auto px-6 mb-8 hidden">
+        <div class="max-w-md mx-auto">
+            <label class="block text-white text-lg mb-2">أدخل رقم التذكرة</label>
+            <input type="number" id="clientNumber" class="client-input w-full" placeholder="أدخل رقم التذكرة" min="1" onchange="trackClient()">
+        </div>
+    </div>
+
+    <!-- Client Tracking Display -->
+    <div id="trackingSection" class="container mx-auto px-6 mb-8 hidden">
+        <div class="max-w-2xl mx-auto">
+            <div class="clinic-card">
+                <h2 id="selectedClinicName" class="text-2xl font-bold mb-4">اسم العيادة</h2>
+                
+                <!-- Current Number Display -->
+                <div class="mb-6">
+                    <p class="text-lg opacity-90 mb-2">الرقم الحالي</p>
+                    <div id="currentNumberDisplay" class="current-number">٠</div>
+                </div>
+                
+                <!-- Client Status -->
+                <div class="mb-6">
+                    <p class="text-lg opacity-90 mb-2">رقمك</p>
+                    <div id="clientNumberDisplay" class="text-3xl font-bold text-yellow-300">٠</div>
+                </div>
+                
+                <!-- Waiting Status -->
+                <div id="waitingStatus" class="mb-6">
+                    <div class="waiting-indicator">
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                    </div>
+                    <p class="text-lg">جاري الانتظار...</p>
+                </div>
+                
+                <!-- Remaining Clients -->
+                <div id="remainingDisplay" class="mb-6">
+                    <p class="text-lg opacity-90">العملاء المتبقين قبلك</p>
+                    <div id="remainingCount" class="text-2xl font-bold text-green-300">٠</div>
+                </div>
+                
+                <!-- Estimated Wait Time -->
+                <div class="mb-6">
+                    <p class="text-lg opacity-90">الوقت المتوقع للانتظار</p>
+                    <div id="estimatedTime" class="text-xl font-bold text-blue-300">٠ دقيقة</div>
+                </div>
+                
+                <!-- Action Buttons -->
+                <div class="flex flex-col gap-4">
+                    <button onclick="refreshStatus()" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors">
+                        🔄 تحديث الحالة
+                    </button>
+                    <button onclick="showComplaintForm()" class="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors">
+                        📝 تقديم شكوى أو اقتراح
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contact Information Form -->
+    <div id="contactSection" class="container mx-auto px-6 mb-8 hidden">
+        <div class="max-w-md mx-auto">
+            <div class="bg-white bg-opacity-10 backdrop-filter backdrop-blur-lg border border-white border-opacity-20 rounded-16 p-6">
+                <h3 class="text-xl font-bold text-white mb-4">معلومات التواصل (اختياري)</h3>
+                <form id="contactForm">
+                    <div class="form-group mb-4">
+                        <label class="block text-white mb-2">البريد الإلكتروني</label>
+                        <input type="email" id="clientEmail" class="client-input w-full" placeholder="أدخل بريدك الإلكتروني">
+                    </div>
+                    <div class="form-group mb-4">
+                        <label class="block text-white mb-2">رقم التليفون</label>
+                        <input type="tel" id="clientPhone" class="client-input w-full" placeholder="أدخل رقم التليفون">
+                    </div>
+                    <button type="submit" class="w-full bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors">
+                        حفظ المعلومات
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Complaint Modal -->
+    <div id="complaintModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center">
+        <div class="notification-popup">
+            <h3 class="text-xl font-bold mb-4">تقديم شكوى أو اقتراح</h3>
+            <form id="complaintForm">
+                <div class="form-group mb-4">
+                    <label class="form-label">النوع</label>
+                    <select id="complaintType" class="form-input" required>
+                        <option value="">اختر النوع</option>
+                        <option value="complaint">شكوى</option>
+                        <option value="suggestion">اقتراح</option>
+                    </select>
+                </div>
+                <div class="form-group mb-4">
+                    <label class="form-label">الاسم (اختياري)</label>
+                    <input type="text" id="complainantName" class="form-input" placeholder="أدخل اسمك">
+                </div>
+                <div class="form-group mb-4">
+                    <label class="form-label">رقم التليفون (اختياري)</label>
+                    <input type="tel" id="complainantPhone" class="form-input" placeholder="أدخل رقم التليفون">
+                </div>
+                <div class="form-group mb-4">
+                    <label class="form-label">البريد الإلكتروني (اختياري)</label>
+                    <input type="email" id="complainantEmail" class="form-input" placeholder="أدخل بريدك الإلكتروني">
+                </div>
+                <div class="form-group mb-4">
+                    <label class="form-label">النص (مطلوب - أقصى 140 حرف)</label>
+                    <textarea id="complaintText" class="form-input" rows="4" maxlength="140" required placeholder="اكتب شكواك أو اقتراحك هنا..."></textarea>
+                    <div class="text-sm text-gray-500 mt-1">
+                        <span id="charCount">0</span>/140 حرف
+                    </div>
+                </div>
+                <div class="form-group mb-4">
+                    <label class="form-label">ملاحظات إضافية (اختياري)</label>
+                    <textarea id="additionalNotes" class="form-input" rows="2" placeholder="أي ملاحظات إضافية..."></textarea>
+                </div>
+                <div class="flex gap-4">
+                    <button type="submit" class="bg-red-600 text-white px-6 py-3 rounded-lg hover:bg-red-700 transition-colors font-semibold">
+                        إرسال
+                    </button>
+                    <button type="button" onclick="hideComplaintForm()" class="bg-gray-500 text-white px-6 py-3 rounded-lg hover:bg-gray-600 transition-colors font-semibold">
+                        إلغاء
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Notification Popup -->
+    <div id="notificationPopup" class="fixed top-4 right-4 bg-white p-4 rounded-lg shadow-lg hidden z-40">
+        <div class="flex items-center gap-2">
+            <div id="notificationIcon" class="text-2xl">🔔</div>
+            <div id="notificationMessage" class="text-gray-800"></div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="firebase-config.js"></script>
+    <script>
+        let selectedClinicId = null;
+        let clientNumber = null;
+        let currentNumber = 0;
+        let isClientTurn = false;
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', () => {
+            loadClinics();
+            setupEventListeners();
+        });
+
+        function loadClinics() {
+            database.ref('clinics').on('value', (snapshot) => {
+                const clinics = snapshot.val() || {};
+                updateClinicSelector(clinics);
+            });
+        }
+
+        function updateClinicSelector(clinics) {
+            const selector = document.getElementById('clinicSelect');
+            selector.innerHTML = '<option value="">اختر العيادة</option>';
+            
+            Object.entries(clinics).forEach(([clinicId, clinic]) => {
+                if (clinic.active !== false) {
+                    const option = document.createElement('option');
+                    option.value = clinicId;
+                    option.textContent = `${clinic.name} (${toArabicNumber(clinic.number)})`;
+                    selector.appendChild(option);
+                }
+            });
+        }
+
+        function selectClinic() {
+            const selector = document.getElementById('clinicSelect');
+            selectedClinicId = selector.value;
+            
+            if (selectedClinicId) {
+                document.getElementById('clientInputSection').classList.remove('hidden');
+                document.getElementById('contactSection').classList.remove('hidden');
+                
+                // Listen to clinic updates
+                database.ref(`clinics/${selectedClinicId}`).on('value', (snapshot) => {
+                    const clinic = snapshot.val();
+                    if (clinic) {
+                        currentNumber = clinic.currentNumber || 0;
+                        updateClinicDisplay(clinic);
+                        
+                        if (clientNumber) {
+                            updateClientStatus();
+                        }
+                    }
+                });
+            } else {
+                document.getElementById('clientInputSection').classList.add('hidden');
+                document.getElementById('contactSection').classList.add('hidden');
+                document.getElementById('trackingSection').classList.add('hidden');
+            }
+        }
+
+        function trackClient() {
+            const input = document.getElementById('clientNumber');
+            clientNumber = parseInt(input.value);
+            
+            if (clientNumber && clientNumber > 0) {
+                document.getElementById('trackingSection').classList.remove('hidden');
+                document.getElementById('clientNumberDisplay').textContent = toArabicNumber(clientNumber);
+                updateClientStatus();
+                
+                // Show notification when it's client's turn
+                if (clientNumber === currentNumber) {
+                    showClientNotification('دورك الآن!', 'success');
+                    isClientTurn = true;
+                }
+            }
+        }
+
+        function updateClinicDisplay(clinic) {
+            document.getElementById('selectedClinicName').textContent = clinic.name;
+            document.getElementById('currentNumberDisplay').textContent = toArabicNumber(currentNumber);
+        }
+
+        function updateClientStatus() {
+            if (!clientNumber || !selectedClinicId) return;
+            
+            const remaining = Math.max(0, clientNumber - currentNumber);
+            const estimatedTime = remaining * 5; // Assume 5 minutes per client
+            
+            document.getElementById('remainingCount').textContent = toArabicNumber(remaining);
+            document.getElementById('estimatedTime').textContent = `${toArabicNumber(estimatedTime)} دقيقة`;
+            
+            // Show/hide waiting status
+            const waitingStatus = document.getElementById('waitingStatus');
+            if (remaining === 0) {
+                waitingStatus.style.display = 'none';
+                if (!isClientTurn) {
+                    showClientNotification('دورك الآن!', 'success');
+                    isClientTurn = true;
+                    // Vibrate if supported
+                    if (navigator.vibrate) {
+                        navigator.vibrate([200, 100, 200, 100, 200]);
+                    }
+                }
+            } else {
+                waitingStatus.style.display = 'block';
+                isClientTurn = false;
+            }
+        }
+
+        function refreshStatus() {
+            if (selectedClinicId) {
+                database.ref(`clinics/${selectedClinicId}`).once('value', (snapshot) => {
+                    const clinic = snapshot.val();
+                    if (clinic) {
+                        currentNumber = clinic.currentNumber || 0;
+                        updateClinicDisplay(clinic);
+                        if (clientNumber) {
+                            updateClientStatus();
+                        }
+                        showNotification('تم تحديث الحالة', 'info');
+                    }
+                });
+            }
+        }
+
+        function showComplaintForm() {
+            document.getElementById('complaintModal').classList.remove('hidden');
+        }
+
+        function hideComplaintForm() {
+            document.getElementById('complaintModal').classList.add('hidden');
+            document.getElementById('complaintForm').reset();
+            document.getElementById('charCount').textContent = '0';
+        }
+
+        function setupEventListeners() {
+            // Contact form
+            document.getElementById('contactForm').addEventListener('submit', (e) => {
+                e.preventDefault();
+                saveContactInfo();
+            });
+            
+            // Complaint form
+            document.getElementById('complaintForm').addEventListener('submit', (e) => {
+                e.preventDefault();
+                submitComplaint();
+            });
+            
+            // Character counter
+            document.getElementById('complaintText').addEventListener('input', (e) => {
+                const count = e.target.value.length;
+                document.getElementById('charCount').textContent = count;
+            });
+        }
+
+        function saveContactInfo() {
+            const email = document.getElementById('clientEmail').value;
+            const phone = document.getElementById('clientPhone').value;
+            
+            if (selectedClinicId && clientNumber) {
+                const contactData = {
+                    clinicId: selectedClinicId,
+                    clientNumber: clientNumber,
+                    email: email,
+                    phone: phone,
+                    timestamp: Date.now()
+                };
+                
+                database.ref(`clientContacts/${selectedClinicId}_${clientNumber}`).set(contactData)
+                    .then(() => {
+                        showNotification('تم حفظ معلومات التواصل', 'success');
+                    })
+                    .catch((error) => {
+                        showNotification('خطأ في حفظ المعلومات', 'error');
+                    });
+            }
+        }
+
+        function submitComplaint() {
+            const type = document.getElementById('complaintType').value;
+            const name = document.getElementById('complainantName').value;
+            const phone = document.getElementById('complainantPhone').value;
+            const email = document.getElementById('complainantEmail').value;
+            const text = document.getElementById('complaintText').value;
+            const notes = document.getElementById('additionalNotes').value;
+            
+            if (!type || !text) {
+                showNotification('الرجاء إكمال الحقول المطلوبة', 'error');
+                return;
+            }
+            
+            const complaintData = {
+                type: type,
+                name: name || 'غير محدد',
+                phone: phone || 'غير محدد',
+                email: email || 'غير محدد',
+                text: text,
+                notes: notes || 'لا توجد ملاحظات',
+                clinicId: selectedClinicId || 'غير محدد',
+                clientNumber: clientNumber || 'غير محدد',
+                timestamp: Date.now(),
+                status: 'pending'
+            };
+            
+            database.ref('complaints').push(complaintData)
+                .then(() => {
+                    showNotification('تم إرسال شكواك/اقتراحك بنجاح', 'success');
+                    hideComplaintForm();
+                })
+                .catch((error) => {
+                    showNotification('خطأ في إرسال الشكوى', 'error');
+                });
+        }
+
+        function showClientNotification(message, type = 'info') {
+            // Create notification if not exists
+            if (!('Notification' in window)) {
+                showPopupNotification(message, type);
+                return;
+            }
+            
+            // Request permission if not granted
+            if (Notification.permission === 'default') {
+                Notification.requestPermission().then(permission => {
+                    if (permission === 'granted') {
+                        showBrowserNotification(message);
+                    } else {
+                        showPopupNotification(message, type);
+                    }
+                });
+            } else if (Notification.permission === 'granted') {
+                showBrowserNotification(message);
+            } else {
+                showPopupNotification(message, type);
+            }
+        }
+
+        function showBrowserNotification(message) {
+            new Notification('نظام الانتظار', {
+                body: message,
+                icon: '/favicon.ico',
+                badge: '/favicon.ico',
+                tag: 'queue-notification'
+            });
+        }
+
+        function showPopupNotification(message, type) {
+            const popup = document.getElementById('notificationPopup');
+            const icon = document.getElementById('notificationIcon');
+            const messageElement = document.getElementById('notificationMessage');
+            
+            // Set icon based on type
+            switch(type) {
+                case 'success':
+                    icon.textContent = '✅';
+                    break;
+                case 'error':
+                    icon.textContent = '❌';
+                    break;
+                case 'warning':
+                    icon.textContent = '⚠️';
+                    break;
+                default:
+                    icon.textContent = '🔔';
+            }
+            
+            messageElement.textContent = message;
+            popup.classList.remove('hidden');
+            
+            // Hide after 5 seconds
+            setTimeout(() => {
+                popup.classList.add('hidden');
+            }, 5000);
+        }
+
+        function showNotification(message, type = 'info') {
+            // Create temporary notification
+            const notification = document.createElement('div');
+            notification.className = `fixed top-4 right-4 p-4 rounded-lg shadow-lg z-50 ${
+                type === 'success' ? 'bg-green-500' : 
+                type === 'error' ? 'bg-red-500' : 
+                type === 'warning' ? 'bg-yellow-500' : 'bg-blue-500'
+            } text-white`;
+            notification.textContent = message;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+
+        // Listen for call notifications
+        database.ref('calls').on('child_added', (snapshot) => {
+            const call = snapshot.val();
+            if (call.type === 'specific' && 
+                call.clinicId === selectedClinicId && 
+                call.clientNumber === clientNumber) {
+                showClientNotification('دورك الآن!', 'success');
+            }
+        });
+
+        // Service Worker Registration for Push Notifications
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js')
+                .then(registration => {
+                    console.log('SW registered: ', registration);
+                })
+                .catch(registrationError => {
+                    console.log('SW registration failed: ', registrationError);
+                });
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة التحكم - نظام إدارة الانتظار</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .control-panel {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .clinic-info {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            padding: 2rem;
+            text-align: center;
+            color: white;
+        }
+        
+        .control-btn {
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            min-height: 120px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+        
+        .control-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+        
+        .control-btn:active {
+            transform: translateY(-2px);
+        }
+        
+        .control-btn.danger {
+            background: rgba(239, 68, 68, 0.8);
+        }
+        
+        .control-btn.danger:hover {
+            background: rgba(239, 68, 68, 0.9);
+        }
+        
+        .control-btn.success {
+            background: rgba(34, 197, 94, 0.8);
+        }
+        
+        .control-btn.success:hover {
+            background: rgba(34, 197, 94, 0.9);
+        }
+        
+        .current-number {
+            font-size: 4rem;
+            font-weight: bold;
+            color: #4facfe;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        
+        .notification-popup {
+            position: fixed;
+            top: 50%;
+            right: 50%;
+            transform: translate(50%, -50%);
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 20px 25px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            max-width: 400px;
+            width: 90%;
+        }
+        
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+        }
+        
+        .status-indicator {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-left: 10px;
+        }
+        
+        .status-active {
+            background: #22c55e;
+            animation: pulse 2s infinite;
+        }
+        
+        .status-inactive {
+            background: #ef4444;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+    </style>
+</head>
+<body class="control-panel">
+    <!-- Login Section -->
+    <div id="loginSection" class="min-h-screen flex items-center justify-center">
+        <div class="bg-white p-8 rounded-xl shadow-lg max-w-md w-full">
+            <h2 class="text-3xl font-bold text-center text-gray-800 mb-8">دخول لوحة التحكم</h2>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label class="form-label">اختر العيادة</label>
+                    <select id="clinicSelect" class="form-input" required>
+                        <option value="">اختر العيادة</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">كلمة السر</label>
+                    <input type="password" id="passwordInput" class="form-input" required>
+                </div>
+                <button type="submit" class="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition-colors font-semibold">
+                    دخول
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Control Panel -->
+    <div id="controlSection" class="hidden">
+        <!-- Header -->
+        <div class="p-6">
+            <div class="flex justify-between items-center">
+                <div class="clinic-info">
+                    <h1 id="clinicName" class="text-3xl font-bold mb-2">اسم العيادة</h1>
+                    <div class="flex items-center justify-center">
+                        <span>الحالة:</span>
+                        <span id="clinicStatus" class="status-indicator status-active"></span>
+                        <span id="statusText">نشطة</span>
+                    </div>
+                </div>
+                <div class="text-center">
+                    <div class="current-number" id="currentNumber">٠</div>
+                    <p class="text-white text-xl">الرقم الحالي</p>
+                </div>
+                <div class="text-right">
+                    <button onclick="logout()" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors mb-2">
+                        خروج
+                    </button>
+                    <div class="text-white">
+                        <div id="currentTime"></div>
+                        <div id="currentDate"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Control Buttons Grid -->
+        <div class="p-6">
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                <!-- Navigation Buttons -->
+                <button onclick="nextClient()" class="control-btn success">
+                    <div class="text-3xl mb-2">➡️</div>
+                    <div>العميل التالي</div>
+                </button>
+                
+                <button onclick="previousClient()" class="control-btn">
+                    <div class="text-3xl mb-2">⬅️</div>
+                    <div>العميل السابق</div>
+                </button>
+                
+                <button onclick="repeatCall()" class="control-btn">
+                    <div class="text-3xl mb-2">🔊</div>
+                    <div>تكرار النداء</div>
+                </button>
+                
+                <!-- Management Buttons -->
+                <button onclick="resetClinic()" class="control-btn danger">
+                    <div class="text-3xl mb-2">🔄</div>
+                    <div>تصفير العيادة</div>
+                </button>
+                
+                <button onclick="callSpecificNumber()" class="control-btn">
+                    <div class="text-3xl mb-2">📢</div>
+                    <div>نداء رقم معين</div>
+                </button>
+                
+                <button onclick="callByName()" class="control-btn">
+                    <div class="text-3xl mb-2">👤</div>
+                    <div>نداء باسم</div>
+                </button>
+                
+                <!-- Communication Buttons -->
+                <button onclick="sendDoctorAlert()" class="control-btn">
+                    <div class="text-3xl mb-2">👨‍⚕️</div>
+                    <div>تنبيه طبيب</div>
+                </button>
+                
+                <button onclick="transferClient()" class="control-btn">
+                    <div class="text-3xl mb-2">↗️</div>
+                    <div>تحويل إلى عيادة</div>
+                </button>
+                
+                <!-- Status Buttons -->
+                <button onclick="toggleClinicStatus()" class="control-btn" id="statusBtn">
+                    <div class="text-3xl mb-2">⏸️</div>
+                    <div>إيقاف/تشغيل</div>
+                </button>
+                
+                <button onclick="emergencyAlert()" class="control-btn danger">
+                    <div class="text-3xl mb-2">🚨</div>
+                    <div>طوارئ</div>
+                </button>
+            </div>
+        </div>
+
+        <!-- Quick Stats -->
+        <div class="p-6">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="bg-white bg-opacity-20 p-4 rounded-lg text-center text-white">
+                    <div class="text-2xl font-bold" id="totalServed">٠</div>
+                    <div class="text-sm">العملاء المخدومين</div>
+                </div>
+                <div class="bg-white bg-opacity-20 p-4 rounded-lg text-center text-white">
+                    <div class="text-2xl font-bold" id="waitingCount">٠</div>
+                    <div class="text-sm">العملاء بالانتظار</div>
+                </div>
+                <div class="bg-white bg-opacity-20 p-4 rounded-lg text-center text-white">
+                    <div class="text-2xl font-bold" id="averageWaitTime">٠</div>
+                    <div class="text-sm">متوسط الانتظار (دقائق)</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Actions -->
+        <div class="p-6">
+            <h3 class="text-white text-xl font-bold mb-4">آخر العمليات</h3>
+            <div class="bg-white bg-opacity-20 rounded-lg p-4">
+                <div id="recentActions" class="space-y-2 text-white">
+                    <!-- Recent actions will be displayed here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Number Input -->
+    <div id="numberModal" class="modal-overlay hidden">
+        <div class="notification-popup">
+            <h3 class="text-xl font-bold mb-4">نداء رقم معين</h3>
+            <input type="number" id="specificNumber" class="form-input mb-4" placeholder="أدخل رقم العميل" min="1">
+            <div class="flex gap-4">
+                <button onclick="confirmCallSpecific()" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+                    نداء
+                </button>
+                <button onclick="hideNumberModal()" class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition-colors">
+                    إلغاء
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Name Input -->
+    <div id="nameModal" class="modal-overlay hidden">
+        <div class="notification-popup">
+            <h3 class="text-xl font-bold mb-4">نداء باسم العميل</h3>
+            <input type="text" id="clientName" class="form-input mb-4" placeholder="أدخل اسم العميل">
+            <div class="flex gap-4">
+                <button onclick="confirmCallByName()" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+                    نداء
+                </button>
+                <button onclick="hideNameModal()" class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition-colors">
+                    إلغاء
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Transfer -->
+    <div id="transferModal" class="modal-overlay hidden">
+        <div class="notification-popup">
+            <h3 class="text-xl font-bold mb-4">تحويل عميل إلى عيادة</h3>
+            <div class="form-group">
+                <label class="form-label">رقم العميل</label>
+                <input type="number" id="transferNumber" class="form-input mb-4" placeholder="أدخل رقم العميل" min="1">
+            </div>
+            <div class="form-group">
+                <label class="form-label">العيادة المستهدفة</label>
+                <select id="targetClinic" class="form-input mb-4">
+                    <option value="">اختر العيادة</option>
+                </select>
+            </div>
+            <div class="flex gap-4">
+                <button onclick="confirmTransfer()" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+                    تحويل
+                </button>
+                <button onclick="hideTransferModal()" class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition-colors">
+                    إلغاء
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="firebase-config.js"></script>
+    <script src="control.js"></script>
+</body>
+</html>

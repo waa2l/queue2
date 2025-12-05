@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة الإدارة - نظام إدارة الانتظار</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-lg">
+        <div class="container mx-auto px-6 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <h1 class="text-2xl font-bold text-gray-800">لوحة الإدارة</h1>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <span id="userEmail" class="text-gray-600"></span>
+                    <button onclick="logout()" class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-colors">
+                        تسجيل الخروج
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Login Form -->
+    <div id="loginSection" class="min-h-screen flex items-center justify-center">
+        <div class="bg-white p-8 rounded-xl shadow-lg max-w-md w-full">
+            <h2 class="text-3xl font-bold text-center text-gray-800 mb-8">تسجيل الدخول</h2>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label class="form-label">البريد الإلكتروني</label>
+                    <input type="email" id="email" class="form-input" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">كلمة المرور</label>
+                    <input type="password" id="password" class="form-input" required>
+                </div>
+                <button type="submit" class="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition-colors font-semibold">
+                    تسجيل الدخول
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Admin Dashboard -->
+    <div id="adminSection" class="hidden">
+        <!-- Sidebar -->
+        <div class="flex min-h-screen">
+            <div class="w-64 bg-white shadow-lg">
+                <div class="p-6">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">القائمة الرئيسية</h3>
+                    <nav class="space-y-2">
+                        <button onclick="showSection('general')" class="nav-btn w-full text-right p-3 rounded-lg hover:bg-gray-100 transition-colors">
+                            ⚙️ الإعدادات العامة
+                        </button>
+                        <button onclick="showSection('screens')" class="nav-btn w-full text-right p-3 rounded-lg hover:bg-gray-100 transition-colors">
+                            📺 إدارة الشاشات
+                        </button>
+                        <button onclick="showSection('clinics')" class="nav-btn w-full text-right p-3 rounded-lg hover:bg-gray-100 transition-colors">
+                            🏥 إدارة العيادات
+                        </button>
+                        <button onclick="showSection('video')" class="nav-btn w-full text-right p-3 rounded-lg hover:bg-gray-100 transition-colors">
+                            🎥 مشغل الفيديو
+                        </button>
+                        <button onclick="showSection('calling')" class="nav-btn w-full text-right p-3 rounded-lg hover:bg-gray-100 transition-colors">
+                            🔊 إعدادات النداء
+                        </button>
+                        <button onclick="showSection('doctors')" class="nav-btn w-full text-right p-3 rounded-lg hover:bg-gray-100 transition-colors">
+                            👨‍⚕️ إدارة الأطباء
+                        </button>
+                        <button onclick="showSection('appointments')" class="nav-btn w-full text-right p-3 rounded-lg hover:bg-gray-100 transition-colors">
+                            📅 إعدادات الحجز
+                        </button>
+                    </nav>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="flex-1 p-6">
+                <!-- General Settings -->
+                <div id="generalSection" class="section-content">
+                    <h2 class="text-3xl font-bold text-gray-800 mb-6">الإعدادات العامة</h2>
+                    <div class="bg-white rounded-xl shadow-lg p-6">
+                        <form id="generalSettingsForm">
+                            <div class="grid md:grid-cols-2 gap-6">
+                                <div class="form-group">
+                                    <label class="form-label">اسم المركز</label>
+                                    <input type="text" id="centerName" class="form-input" placeholder="أدخل اسم المركز">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">محتوى شريط الأخبار</label>
+                                    <textarea id="newsTicker" class="form-input" rows="3" placeholder="أدخل محتوى شريط الأخبار المتحرك"></textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">فترة عرض التنبيه (ثواني)</label>
+                                    <input type="number" id="alertDuration" class="form-input" min="1" max="30" value="5">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">سرعة نطق النداء</label>
+                                    <select id="speechRate" class="form-input">
+                                        <option value="0.5">بطيئة</option>
+                                        <option value="1" selected>عادية</option>
+                                        <option value="1.5">سريعة</option>
+                                        <option value="2">جداً سريعة</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">مسار فولدر الصوتيات</label>
+                                    <input type="text" id="audioPath" class="form-input" value="./audio/" placeholder="مسار فولدر الصوتيات">
+                                </div>
+                            </div>
+                            <button type="submit" class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors font-semibold mt-4">
+                                حفظ الإعدادات
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Screens Management -->
+                <div id="screensSection" class="section-content hidden">
+                    <h2 class="text-3xl font-bold text-gray-800 mb-6">إدارة الشاشات</h2>
+                    <div class="bg-white rounded-xl shadow-lg p-6">
+                        <button onclick="showAddScreenModal()" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors mb-4">
+                            إضافة شاشة جديدة
+                        </button>
+                        <div id="screensList" class="grid gap-4">
+                            <!-- Screens will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Clinics Management -->
+                <div id="clinicsSection" class="section-content hidden">
+                    <h2 class="text-3xl font-bold text-gray-800 mb-6">إدارة العيادات</h2>
+                    <div class="bg-white rounded-xl shadow-lg p-6">
+                        <button onclick="showAddClinicModal()" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors mb-4">
+                            إضافة عيادة جديدة
+                        </button>
+                        <div id="clinicsList" class="grid gap-4">
+                            <!-- Clinics will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Video Player Settings -->
+                <div id="videoSection" class="section-content hidden">
+                    <h2 class="text-3xl font-bold text-gray-800 mb-6">إعدادات مشغل الفيديو</h2>
+                    <div class="bg-white rounded-xl shadow-lg p-6">
+                        <div class="grid md:grid-cols-2 gap-6">
+                            <div class="form-group">
+                                <label class="form-label">روابط الفيديوهات</label>
+                                <div id="videoLinksList">
+                                    <!-- Video links will be loaded here -->
+                                </div>
+                                <button onclick="addVideoLink()" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors mt-2">
+                                    إضافة رابط فيديو
+                                </button>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">إعدادات التشغيل</label>
+                                <div class="space-y-3">
+                                    <label class="flex items-center">
+                                        <input type="checkbox" id="autoPlay" class="mr-2">
+                                        <span>تشغيل تلقائي</span>
+                                    </label>
+                                    <label class="flex items-center">
+                                        <input type="checkbox" id="loopVideos" class="mr-2">
+                                        <span>إعادة التشغيل</span>
+                                    </label>
+                                    <label class="flex items-center">
+                                        <input type="checkbox" id="shuffleVideos" class="mr-2">
+                                        <span>تشغيل عشوائي</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Calling Settings -->
+                <div id="callingSection" class="section-content hidden">
+                    <h2 class="text-3xl font-bold text-gray-800 mb-6">إعدادات النداء</h2>
+                    <div class="bg-white rounded-xl shadow-lg p-6">
+                        <div class="grid md:grid-cols-2 gap-6">
+                            <div class="space-y-4">
+                                <h4 class="text-lg font-semibold">النداءات السريعة</h4>
+                                <button onclick="callSpecificClient()" class="w-full bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 transition-colors">
+                                    نداء عميل معين
+                                </button>
+                                <button onclick="emergencyCall()" class="w-full bg-red-600 text-white p-3 rounded-lg hover:bg-red-700 transition-colors">
+                                    استعجال حالة طارئة
+                                </button>
+                                <button onclick="sendTextAlert()" class="w-full bg-yellow-600 text-white p-3 rounded-lg hover:bg-yellow-700 transition-colors">
+                                    تنبيه نصي على الشاشة
+                                </button>
+                            </div>
+                            <div class="space-y-4">
+                                <h4 class="text-lg font-semibold">التحكم العام</h4>
+                                <button onclick="resetAllClinics()" class="w-full bg-gray-600 text-white p-3 rounded-lg hover:bg-gray-700 transition-colors">
+                                    تصفير جميع العيادات
+                                </button>
+                                <button onclick="sendAdminAlert()" class="w-full bg-purple-600 text-white p-3 rounded-lg hover:bg-purple-700 transition-colors">
+                                    إرسال تنبيه إلى لوحة التحكم
+                                </button>
+                                <button onclick="recordVoiceMessage()" class="w-full bg-green-600 text-white p-3 rounded-lg hover:bg-green-700 transition-colors">
+                                    تسجيل صوت من الموبايل
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Doctors Management -->
+                <div id="doctorsSection" class="section-content hidden">
+                    <h2 class="text-3xl font-bold text-gray-800 mb-6">إدارة الأطباء</h2>
+                    <div class="bg-white rounded-xl shadow-lg p-6">
+                        <button onclick="showAddDoctorModal()" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors mb-4">
+                            إضافة طبيب جديد
+                        </button>
+                        <div id="doctorsList" class="grid gap-4">
+                            <!-- Doctors will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Appointments Settings -->
+                <div id="appointmentsSection" class="section-content hidden">
+                    <h2 class="text-3xl font-bold text-gray-800 mb-6">إعدادات الحجز</h2>
+                    <div class="bg-white rounded-xl shadow-lg p-6">
+                        <div class="grid md:grid-cols-2 gap-6">
+                            <div class="form-group">
+                                <label class="form-label">عدد الحجوزات لكل عيادة (شيفت صباحي)</label>
+                                <input type="number" id="morningSlots" class="form-input" min="1" max="50" value="20">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">عدد الحجوزات لكل عيادة (شيفت مسائي)</label>
+                                <input type="number" id="eveningSlots" class="form-input" min="1" max="50" value="15">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">وقت بداية الشيفت الصباحي</label>
+                                <input type="time" id="morningStart" class="form-input" value="08:00">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">وقت نهاية الشيفت الصباحي</label>
+                                <input type="time" id="morningEnd" class="form-input" value="14:00">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">وقت بداية الشيفت المسائي</label>
+                                <input type="time" id="eveningStart" class="form-input" value="14:00">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">وقت نهاية الشيفت المسائي</label>
+                                <input type="time" id="eveningEnd" class="form-input" value="20:00">
+                            </div>
+                        </div>
+                        <button onclick="saveAppointmentSettings()" class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors font-semibold mt-4">
+                            حفظ الإعدادات
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Screen Modal -->
+    <div id="addScreenModal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <h3 class="text-xl font-bold mb-4">إضافة شاشة جديدة</h3>
+            <form id="addScreenForm">
+                <div class="form-group">
+                    <label class="form-label">رقم الشاشة</label>
+                    <input type="number" id="screenNumber" class="form-input" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">اسم الشاشة</label>
+                    <input type="text" id="screenName" class="form-input" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">كلمة السر</label>
+                    <input type="password" id="screenPassword" class="form-input" required>
+                </div>
+                <div class="flex gap-4">
+                    <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+                        إضافة
+                    </button>
+                    <button type="button" onclick="hideAddScreenModal()" class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition-colors">
+                        إلغاء
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add Clinic Modal -->
+    <div id="addClinicModal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <h3 class="text-xl font-bold mb-4">إضافة عيادة جديدة</h3>
+            <form id="addClinicForm">
+                <div class="form-group">
+                    <label class="form-label">اسم العيادة</label>
+                    <input type="text" id="clinicName" class="form-input" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">رقم العيادة</label>
+                    <input type="number" id="clinicNumber" class="form-input" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">رقم الشاشة</label>
+                    <select id="clinicScreen" class="form-input" required>
+                        <option value="">اختر الشاشة</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">كلمة السر</label>
+                    <input type="password" id="clinicPassword" class="form-input" required>
+                </div>
+                <div class="flex gap-4">
+                    <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+                        إضافة
+                    </button>
+                    <button type="button" onclick="hideAddClinicModal()" class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition-colors">
+                        إلغاء
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add Doctor Modal -->
+    <div id="addDoctorModal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <h3 class="text-xl font-bold mb-4">إضافة طبيب جديد</h3>
+            <form id="addDoctorForm">
+                <div class="form-group">
+                    <label class="form-label">اسم الطبيب</label>
+                    <input type="text" id="doctorName" class="form-input" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">رقم التليفون</label>
+                    <input type="tel" id="doctorPhone" class="form-input" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">التخصص</label>
+                    <input type="text" id="doctorSpecialty" class="form-input" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">رابط الصورة</label>
+                    <input type="url" id="doctorImage" class="form-input">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">أيام العمل</label>
+                    <div class="grid grid-cols-7 gap-2">
+                        <label class="flex items-center">
+                            <input type="checkbox" value="saturday" class="mr-1"> سبت
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" value="sunday" class="mr-1"> أحد
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" value="monday" class="mr-1"> اثنين
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" value="tuesday" class="mr-1"> ثلاثاء
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" value="wednesday" class="mr-1"> أربعاء
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" value="thursday" class="mr-1"> خميس
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" value="friday" class="mr-1"> جمعة
+                        </label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">الشيفت</label>
+                    <select id="doctorShift" class="form-input" required>
+                        <option value="morning">صباحي</option>
+                        <option value="evening">مسائي</option>
+                        <option value="both">الاثنين</option>
+                    </select>
+                </div>
+                <div class="flex gap-4">
+                    <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+                        إضافة
+                    </button>
+                    <button type="button" onclick="hideAddDoctorModal()" class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition-colors">
+                        إلغاء
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="firebase-config.js"></script>
+    <script src="admin.js"></script>
+</body>
+</html>

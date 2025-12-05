@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>عن النظام - نظام إدارة الانتظار</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .info-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 16px;
+            padding: 2rem;
+            margin: 1rem;
+            color: white;
+            transition: all 0.3s ease;
+        }
+        
+        .info-card:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+        
+        .version-badge {
+            background: linear-gradient(135deg, #4facfe, #00f2fe);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: bold;
+            display: inline-block;
+            margin: 0.5rem;
+        }
+        
+        .feature-list {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .feature-list li {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
+        
+        .feature-list li:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateX(10px);
+        }
+        
+        .feature-icon {
+            font-size: 1.5rem;
+            margin-left: 1rem;
+            width: 40px;
+            text-align: center;
+        }
+        
+        .tech-badge {
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            margin: 0.25rem;
+            display: inline-block;
+            transition: all 0.3s ease;
+        }
+        
+        .tech-badge:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.05);
+        }
+        
+        .contact-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin: 1rem 0;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
+        
+        .contact-info:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        .contact-icon {
+            font-size: 2rem;
+            width: 50px;
+            text-align: center;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+        
+        .stat-item {
+            text-align: center;
+            padding: 1.5rem;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
+        
+        .stat-item:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.05);
+        }
+        
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #4facfe;
+            margin-bottom: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="p-6 text-center">
+        <h1 class="text-4xl font-bold text-white mb-2">ℹ️ عن النظام</h1>
+        <p class="text-white opacity-90">تعرف أكثر على نظام إدارة الانتظار الذكي</p>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container mx-auto px-6">
+        <!-- System Information -->
+        <div class="grid lg:grid-cols-2 gap-6">
+            <div class="info-card">
+                <h2 class="text-2xl font-bold mb-4">🖥️ معلومات النظام</h2>
+                <div class="space-y-4">
+                    <div>
+                        <span class="version-badge">الإصدار: 2.0.0</span>
+                        <span class="version-badge">التاريخ: ديسمبر 2024</span>
+                    </div>
+                    
+                    <div>
+                        <h3 class="text-lg font-semibold mb-2">الوصف</h3>
+                        <p class="opacity-90 leading-relaxed">
+                            نظام إدارة الانتظار الذكي هو حل متكامل لتنظيم طوابير العملاء والمرضى في المراكز الطبية والعيادات، 
+                            مع مميزات متقدمة تشمل الشاشات الذكية، النداء الصوتي، ومتابعة العملاء عبر الهواتف الذكية.
+                        </p>
+                    </div>
+                    
+                    <div>
+                        <h3 class="text-lg font-semibold mb-2">الهدف</h3>
+                        <p class="opacity-90 leading-relaxed">
+                            تحسين تجربة العملاء، تقليل وقت الانتظار، تنظيم العمل داخل المركز، 
+                            وتوفير بيئة مريحة للمرضى والزوار.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="info-card">
+                <h2 class="text-2xl font-bold mb-4">📊 إحصائيات النظام</h2>
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-number" id="totalCenters">٠</div>
+                        <div>مركز طبي</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number" id="totalDoctors">٠</div>
+                        <div>طبيب</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number" id="totalPatients">٠</div>
+                        <div>مريض تم خدمته</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number" id="totalAppointments">٠</div>
+                        <div>موعد محجوز</div>
+                    </div>
+                </div>
+                
+                <div class="mt-6">
+                    <h3 class="text-lg font-semibold mb-3">معدلات الأداء</h3>
+                    <div class="space-y-2">
+                        <div class="flex justify-between">
+                            <span>متوسط وقت الانتظار:</span>
+                            <span class="text-green-300">15 دقيقة</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>رضا العملاء:</span>
+                            <span class="text-green-300">95%</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>كفاءة النظام:</span>
+                            <span class="text-green-300">99.9%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Features -->
+        <div class="info-card">
+            <h2 class="text-2xl font-bold mb-6">✨ المميزات الرئيسية</h2>
+            <ul class="feature-list">
+                <li>
+                    <span class="feature-icon">📺</span>
+                    <div>
+                        <div class="font-semibold">شاشات عرض متعددة</div>
+                        <div class="text-sm opacity-75">إمكانية إدارة عدة شاشات مع محتوى مختلف لكل شاشة</div>
+                    </div>
+                </li>
+                <li>
+                    <span class="feature-icon">🔊</span>
+                    <div>
+                        <div class="font-semibold">نظام نداء صوتي ذكي</div>
+                        <div class="text-sm opacity-75">نداءات صوتية باللغة العربية مع التحكم في السرعة والنبرة</div>
+                    </div>
+                </li>
+                <li>
+                    <span class="feature-icon">📱</span>
+                    <div>
+                        <div class="font-semibold">متابعة عبر الجوال</div>
+                        <div class="text-sm opacity-75">إمكانية متابعة الدور عبر الهاتف المحمول من خلال QR Code</div>
+                    </div>
+                </li>
+                <li>
+                    <span class="feature-icon">⚡</span>
+                    <div>
+                        <div class="font-semibold">استجابة فورية</div>
+                        <div class="text-sm opacity-75">تحديث لحظي للبيانات عبر Firebase Realtime Database</div>
+                    </div>
+                </li>
+                <li>
+                    <span class="feature-icon">🎥</span>
+                    <div>
+                        <div class="font-semibold">مشغل فيديو متقدم</div>
+                        <div class="text-sm opacity-75">عرض فيديوهات توعية مع التحكم الكامل في التشغيل</div>
+                    </div>
+                </li>
+                <li>
+                    <span class="feature-icon">🔐</span>
+                    <div>
+                        <div class="font-semibold">نظام آمن</div>
+                        <div class="text-sm opacity-75">مصادقة آمنة عبر Firebase Auth مع أذونات محددة</div>
+                    </div>
+                </li>
+                <li>
+                    <span class="feature-icon">📊</span>
+                    <div>
+                        <div class="font-semibold">تقارير وإحصائيات</div>
+                        <div class="text-sm opacity-75">تقارير مفصلة عن أداء المركز وإحصائيات العملاء</div>
+                    </div>
+                </li>
+                <li>
+                    <span class="feature-icon">💬</span>
+                    <div>
+                        <div class="font-semibold">استشارات سريعة</div>
+                        <div class="text-sm opacity-75">مساعد طبي ذكي للإجابة على الاستفسارات البسيطة</div>
+                    </div>
+                </li>
+            </ul>
+        </div>
+        
+        <!-- Technologies -->
+        <div class="info-card">
+            <h2 class="text-2xl font-bold mb-4">🛠️ التقنيات المستخدمة</h2>
+            <div class="mb-4">
+                <h3 class="text-lg font-semibold mb-2">الواجهة الأمامية (Frontend)</h3>
+                <div class="flex flex-wrap">
+                    <span class="tech-badge">HTML5</span>
+                    <span class="tech-badge">CSS3</span>
+                    <span class="tech-badge">JavaScript ES6+</span>
+                    <span class="tech-badge">Tailwind CSS</span>
+                    <span class="tech-badge">Anime.js</span>
+                </div>
+            </div>
+            
+            <div class="mb-4">
+                <h3 class="text-lg font-semibold mb-2">القاعدة الخلفية (Backend)</h3>
+                <div class="flex flex-wrap">
+                    <span class="tech-badge">Firebase</span>
+                    <span class="tech-badge">Firebase Auth</span>
+                    <span class="tech-badge">Realtime Database</span>
+                    <span class="tech-badge">Firestore</span>
+                    <span class="tech-badge">Firebase Storage</span>
+                </div>
+            </div>
+            
+            <div>
+                <h3 class="text-lg font-semibold mb-2">أدوات التطوير</h3>
+                <div class="flex flex-wrap">
+                    <span class="tech-badge">GitHub</span>
+                    <span class="tech-badge">VS Code</span>
+                    <span class="tech-badge">Responsive Design</span>
+                    <span class="tech-badge">PWA</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- System Architecture -->
+        <div class="info-card">
+            <h2 class="text-2xl font-bold mb-4">🏗️ معمارية النظام</h2>
+            <div class="space-y-4">
+                <div>
+                    <h3 class="text-lg font-semibold mb-2">البنية التحتية</h3>
+                    <p class="opacity-90">
+                        النظام مبني على بنية متقدمة تعتمد على Firebase من Google، مما يوفر قابلية توسع عالية، 
+                        أمان متقدم، وأداء ممتاز مع توفر مستمر بنسبة 99.9%.
+                    </p>
+                </div>
+                
+                <div>
+                    <h3 class="text-lg font-semibold mb-2">قواعد البيانات</h3>
+                    <ul class="list-disc list-inside opacity-90 space-y-1">
+                        <li><strong>Realtime Database:</strong> للبيانات السريعة والمؤقتة (الطوابير، النداءات)</li>
+                        <li><strong>Firestore:</strong> للبيانات المستمرة (الأطباء، المواعيد، السجلات)</li>
+                        <li><strong>Firebase Storage:</strong> لتخزين الملفات (الصور، الصوتيات)</li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h3 class="text-lg font-semibold mb-2">الأمان</h3>
+                    <ul class="list-disc list-inside opacity-90 space-y-1">
+                        <li>مصادقة آمنة عبر Firebase Auth</li>
+                        <li>قواعد أمان متقدمة لحماية البيانات</li>
+                        <li>تشفير البيانات أثناء النقل والتخزين</li>
+                        <li>صلاحيات محددة لكل نوع مستخدم</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Contact Information -->
+        <div class="info-card">
+            <h2 class="text-2xl font-bold mb-6">📞 معلومات التواصل</h2>
+            <div class="space-y-4">
+                <div class="contact-info">
+                    <span class="contact-icon">🏥</span>
+                    <div>
+                        <div class="font-semibold">الدعم الفني</div>
+                        <div class="opacity-75">دعم فني على مدار الساعة</div>
+                    </div>
+                </div>
+                
+                <div class="contact-info">
+                    <span class="contact-icon">📧</span>
+                    <div>
+                        <div class="font-semibold">البريد الإلكتروني</div>
+                        <div class="opacity-75">support@queue-management.com</div>
+                    </div>
+                </div>
+                
+                <div class="contact-info">
+                    <span class="contact-icon">📱</span>
+                    <div>
+                        <div class="font-semibold">الواتساب</div>
+                        <div class="opacity-75">+20 100 123 4567</div>
+                    </div>
+                </div>
+                
+                <div class="contact-info">
+                    <span class="contact-icon">🌐</span>
+                    <div>
+                        <div class="font-semibold">الموقع الإلكتروني</div>
+                        <div class="opacity-75">www.queue-management.com</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- License -->
+        <div class="info-card">
+            <h2 class="text-2xl font-bold mb-4">📄 حقوق الاستخدام</h2>
+            <div class="text-center">
+                <p class="mb-4">
+                    نظام إدارة الانتظار الذكي © 2024
+                </p>
+                <p class="opacity-75 mb-4">
+                    جميع الحقوق محفوظة. تم تطوير النظام باستخدام أحدث التقنيات 
+                    ووفقاً لأفضل معايير الجودة والأمان.
+                </p>
+                <div class="text-sm opacity-60">
+                    <p>رقم التسجيل: QM-2024-001</p>
+                    <p>تاريخ الإصدار: 5 ديسمبر 2024</p>
+                    <p>آخر تحديث: 5 ديسمبر 2024</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="firebase-config.js"></script>
+    <script>
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', () => {
+            loadStatistics();
+            animateElements();
+        });
+
+        function loadStatistics() {
+            // Simulate loading statistics
+            // In a real application, this would fetch from Firebase
+            setTimeout(() => {
+                animateCounter('totalCenters', 15);
+                animateCounter('totalDoctors', 120);
+                animateCounter('totalPatients', 15847);
+                animateCounter('totalAppointments', 3245);
+            }, 500);
+        }
+
+        function animateCounter(elementId, target) {
+            const element = document.getElementById(elementId);
+            const duration = 2000;
+            const start = 0;
+            const increment = target / (duration / 16);
+            let current = start;
+            
+            const timer = setInterval(() => {
+                current += increment;
+                if (current >= target) {
+                    current = target;
+                    clearInterval(timer);
+                }
+                element.textContent = toArabicNumber(Math.floor(current));
+            }, 16);
+        }
+
+        function animateElements() {
+            // Animate feature list items
+            const featureItems = document.querySelectorAll('.feature-list li');
+            featureItems.forEach((item, index) => {
+                anime({
+                    targets: item,
+                    translateX: [-50, 0],
+                    opacity: [0, 1],
+                    delay: index * 100,
+                    duration: 600,
+                    easing: 'easeOutQuad'
+                });
+            });
+            
+            // Animate info cards
+            const infoCards = document.querySelectorAll('.info-card');
+            infoCards.forEach((card, index) => {
+                anime({
+                    targets: card,
+                    translateY: [50, 0],
+                    opacity: [0, 1],
+                    delay: index * 200,
+                    duration: 800,
+                    easing: 'easeOutQuad'
+                });
+            });
+        }
+
+        // Add smooth scrolling for internal links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>

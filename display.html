@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>شاشة العرض - نظام إدارة الانتظار</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            overflow: hidden;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .display-header {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .queue-container {
+            height: calc(100vh - 200px);
+            overflow-y: auto;
+        }
+        
+        .doctor-banner-container {
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 300px;
+            z-index: 10;
+        }
+        
+        .video-container {
+            position: absolute;
+            left: 20px;
+            top: 20px;
+            width: 400px;
+            height: 300px;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+        }
+        
+        .qr-code-container {
+            position: fixed;
+            bottom: 120px;
+            right: 20px;
+            background: white;
+            padding: 1rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        
+        .news-ticker {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 1rem 0;
+            overflow: hidden;
+            white-space: nowrap;
+            z-index: 20;
+        }
+        
+        .news-ticker-content {
+            display: inline-block;
+            animation: scroll-left 60s linear infinite;
+        }
+        
+        @keyframes scroll-left {
+            0% { transform: translateX(100vw); }
+            100% { transform: translateX(-100%); }
+        }
+        
+        .clinic-card {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin: 1rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .clinic-card.active {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            transform: scale(1.05);
+        }
+        
+        .clinic-card.inactive {
+            background: rgba(128, 128, 128, 0.3);
+            opacity: 0.6;
+        }
+        
+        .clinic-card.calling {
+            animation: pulse-glow 2s infinite;
+        }
+        
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 20px rgba(255, 215, 0, 0.5); }
+            50% { box-shadow: 0 0 40px rgba(255, 215, 0, 0.8); }
+        }
+        
+        .screen-selector {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 30;
+        }
+        
+        .control-buttons {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 30;
+        }
+        
+        .notification-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(90deg, #ff6b6b, #ee5a24);
+            color: white;
+            padding: 1rem;
+            text-align: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            z-index: 100;
+            transform: translateY(-100%);
+            transition: transform 0.5s ease;
+        }
+        
+        .notification-bar.show {
+            transform: translateY(0);
+        }
+        
+        .doctor-slide {
+            animation: slideInRight 0.8s ease-out;
+        }
+        
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Notification Bar -->
+    <div id="notificationBar" class="notification-bar">
+        <!-- Notification content will be inserted here -->
+    </div>
+
+    <!-- Screen Selector -->
+    <div class="screen-selector">
+        <select id="screenSelector" class="bg-white px-4 py-2 rounded-lg shadow-lg" onchange="changeScreen()">
+            <option value="">اختر الشاشة</option>
+        </select>
+    </div>
+
+    <!-- Control Buttons -->
+    <div class="control-buttons flex gap-2">
+        <button onclick="toggleFullScreen()" class="bg-white p-2 rounded-lg shadow-lg hover:bg-gray-100 transition-colors" title="ملء الشاشة">
+            🔳
+        </button>
+        <button onclick="zoomIn()" class="bg-white p-2 rounded-lg shadow-lg hover:bg-gray-100 transition-colors" title="تكبير">
+            🔍+
+        </button>
+        <button onclick="zoomOut()" class="bg-white p-2 rounded-lg shadow-lg hover:bg-gray-100 transition-colors" title="تصغير">
+            🔍-
+        </button>
+        <button onclick="resetZoom()" class="bg-white p-2 rounded-lg shadow-lg hover:bg-gray-100 transition-colors" title="إعادة التعيين">
+            🔄
+        </button>
+    </div>
+
+    <!-- Display Header -->
+    <div class="display-header p-4">
+        <div class="flex justify-between items-center">
+            <div class="flex items-center gap-4">
+                <h1 id="centerName" class="text-2xl font-bold text-white">اسم المركز</h1>
+                <div id="currentTime" class="text-white text-lg"></div>
+            </div>
+            <div class="text-white">
+                <span id="currentDate"></span> - <span id="currentScreen">الشاشة الرئيسية</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="flex h-screen">
+        <!-- Video Container -->
+        <div class="video-container">
+            <div id="videoPlayer" class="w-full h-full bg-black rounded-lg">
+                <iframe id="youtubePlayer" class="w-full h-full" 
+                        src="https://www.youtube.com/embed/videoseries?list=PLrAXtmErZgOeiKm4sgNOknGvNjby9efdf" 
+                        frameborder="0" 
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                        allowfullscreen>
+                </iframe>
+            </div>
+            <div class="video-controls bg-black bg-opacity-50 p-2 flex justify-center gap-2">
+                <button onclick="previousVideo()" class="control-icon">⏮️</button>
+                <button onclick="togglePlayPause()" class="control-icon">⏯️</button>
+                <button onclick="nextVideo()" class="control-icon">⏭️</button>
+                <button onclick="toggleMute()" class="control-icon">🔊</button>
+                <input type="range" id="volumeSlider" min="0" max="100" value="50" class="w-20" onchange="setVolume()">
+            </div>
+        </div>
+
+        <!-- Clinics Queue -->
+        <div class="flex-1 queue-container">
+            <div id="clinicsContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
+                <!-- Clinics will be loaded here -->
+            </div>
+        </div>
+
+        <!-- Doctor Banner -->
+        <div class="doctor-banner-container">
+            <div id="doctorBanner" class="doctor-banner hidden">
+                <!-- Doctor promotion content will be inserted here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- QR Code -->
+    <div class="qr-code-container">
+        <div id="qrcode"></div>
+        <p class="text-sm mt-2">امسح للدخول إلى صفحة العميل</p>
+    </div>
+
+    <!-- News Ticker -->
+    <div class="news-ticker">
+        <div id="newsTickerContent" class="news-ticker-content">
+            <!-- News content will be inserted here -->
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode/1.5.3/qrcode.min.js"></script>
+    <script src="firebase-config.js"></script>
+    <script src="display.js"></script>
+</body>
+</html>

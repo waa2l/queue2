@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>الأطباء - نظام إدارة الانتظار</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .doctor-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 16px;
+            padding: 2rem;
+            margin: 1rem;
+            color: white;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .doctor-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #4facfe, #00f2fe);
+        }
+        
+        .doctor-card:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-10px);
+            box-shadow: 0 20px 25px rgba(0, 0, 0, 0.2);
+        }
+        
+        .doctor-image {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            margin: 0 auto 1.5rem;
+            display: block;
+        }
+        
+        .specialty-badge {
+            background: rgba(79, 172, 254, 0.2);
+            border: 1px solid #4facfe;
+            color: #4facfe;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            display: inline-block;
+            margin-bottom: 1rem;
+        }
+        
+        .working-days {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin: 1rem 0;
+        }
+        
+        .day-badge {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.8rem;
+        }
+        
+        .shift-indicator {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+        
+        .shift-morning {
+            background: rgba(34, 197, 94, 0.2);
+            color: #22c55e;
+        }
+        
+        .shift-evening {
+            background: rgba(251, 191, 36, 0.2);
+            color: #fbbf24;
+        }
+        
+        .shift-both {
+            background: rgba(168, 85, 247, 0.2);
+            color: #a855f7;
+        }
+        
+        .search-filter {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 16px;
+            padding: 2rem;
+            margin: 1rem;
+            color: white;
+        }
+        
+        .search-input {
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 12px;
+            padding: 1rem;
+            color: white;
+            width: 100%;
+            transition: all 0.3s ease;
+        }
+        
+        .search-input::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+        
+        .search-input:focus {
+            outline: none;
+            border-color: #4facfe;
+            box-shadow: 0 0 20px rgba(79, 172, 254, 0.3);
+        }
+        
+        .filter-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 0.25rem;
+        }
+        
+        .filter-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        
+        .filter-btn.active {
+            background: #4facfe;
+            border-color: #4facfe;
+        }
+        
+        .contact-info {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin: 0.5rem 0;
+            font-size: 0.9rem;
+        }
+        
+        .contact-icon {
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="p-6 text-center">
+        <h1 class="text-4xl font-bold text-white mb-2">👨‍⚕️ الأطباء</h1>
+        <p class="text-white opacity-90">تعرف على أطبائنا المميزين ومواعيد عملهم</p>
+    </div>
+
+    <!-- Search and Filter -->
+    <div class="container mx-auto px-6 mb-8">
+        <div class="search-filter">
+            <div class="grid md:grid-cols-2 gap-4 mb-4">
+                <div>
+                    <label class="block mb-2 font-semibold">🔍 البحث</label>
+                    <input type="text" id="searchInput" class="search-input" placeholder="ابحث عن طبيب أو تخصص..." oninput="filterDoctors()">
+                </div>
+                <div>
+                    <label class="block mb-2 font-semibold">📅 التاريخ</label>
+                    <input type="date" id="dateFilter" class="search-input" onchange="filterDoctors()">
+                </div>
+            </div>
+            
+            <div class="mb-4">
+                <label class="block mb-2 font-semibold">🏥 التخصص</label>
+                <div id="specialtyFilters" class="flex flex-wrap">
+                    <!-- Specialty filters will be generated here -->
+                </div>
+            </div>
+            
+            <div>
+                <label class="block mb-2 font-semibold">⏰ الشيفت</label>
+                <div class="flex flex-wrap">
+                    <button class="filter-btn" data-shift="morning" onclick="toggleShiftFilter(this)">صباحي</button>
+                    <button class="filter-btn" data-shift="evening" onclick="toggleShiftFilter(this)">مسائي</button>
+                    <button class="filter-btn" data-shift="both" onclick="toggleShiftFilter(this)">الاثنين</button>
+                    <button class="filter-btn active" data-shift="all" onclick="toggleShiftFilter(this)">الكل</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Doctors Grid -->
+    <div class="container mx-auto px-6">
+        <div id="doctorsGrid" class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Doctors will be loaded here -->
+        </div>
+        
+        <!-- No Results Message -->
+        <div id="noResults" class="text-center text-white text-xl hidden">
+            <div class="text-6xl mb-4">🔍</div>
+            <p>لا يوجد أطباء مطابقين لبحثك</p>
+        </div>
+    </div>
+
+    <!-- Doctor Details Modal -->
+    <div id="doctorModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center">
+        <div class="bg-white p-8 rounded-2xl shadow-2xl max-w-2xl w-full mx-4 max-h-96 overflow-y-auto">
+            <div id="modalContent">
+                <!-- Doctor details will be inserted here -->
+            </div>
+            <div class="flex gap-4 mt-6">
+                <button onclick="hideDoctorModal()" class="flex-1 bg-gray-600 hover:bg-gray-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors">
+                    إغلاق
+                </button>
+                <button onclick="bookAppointment()" class="flex-1 bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors">
+                    📅 حجز موعد
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="firebase-config.js"></script>
+    <script>
+        let doctors = [];
+        let filteredDoctors = [];
+        let selectedDoctor = null;
+        let currentFilters = {
+            search: '',
+            specialty: 'all',
+            shift: 'all',
+            date: null
+        };
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', () => {
+            loadDoctors();
+            setupEventListeners();
+        });
+
+        function loadDoctors() {
+            firestore.collection('doctors').where('active', '==', true).onSnapshot((snapshot) => {
+                doctors = [];
+                snapshot.forEach((doc) => {
+                    doctors.push({ id: doc.id, ...doc.data() });
+                });
+                
+                filteredDoctors = [...doctors];
+                displayDoctors();
+                generateSpecialtyFilters();
+            });
+        }
+
+        function displayDoctors() {
+            const grid = document.getElementById('doctorsGrid');
+            const noResults = document.getElementById('noResults');
+            
+            if (filteredDoctors.length === 0) {
+                grid.innerHTML = '';
+                noResults.classList.remove('hidden');
+                return;
+            }
+            
+            noResults.classList.add('hidden');
+            grid.innerHTML = '';
+            
+            filteredDoctors.forEach((doctor) => {
+                const doctorCard = createDoctorCard(doctor);
+                grid.appendChild(doctorCard);
+            });
+        }
+
+        function createDoctorCard(doctor) {
+            const card = document.createElement('div');
+            card.className = 'doctor-card';
+            
+            const workingDays = doctor.workingDays || [];
+            const shiftText = {
+                'morning': 'صباحي',
+                'evening': 'مسائي',
+                'both': 'الاثنين'
+            };
+            
+            const shiftClass = `shift-${doctor.shift || 'morning'}`;
+            
+            card.innerHTML = `
+                <img src="${doctor.image || 'https://via.placeholder.com/120'}" alt="${doctor.name}" class="doctor-image">
+                <h3 class="text-xl font-bold mb-2">${doctor.name}</h3>
+                <div class="specialty-badge">${doctor.specialty}</div>
+                
+                <div class="working-days">
+                    ${workingDays.map(day => `<span class="day-badge">${getDayName(day)}</span>`).join('')}
+                </div>
+                
+                <div class="mb-4">
+                    <span class="shift-indicator ${shiftClass}">${shiftText[doctor.shift] || 'صباحي'}</span>
+                </div>
+                
+                ${doctor.phone ? `
+                    <div class="contact-info">
+                        <span class="contact-icon">📞</span>
+                        <span>${doctor.phone}</span>
+                    </div>
+                ` : ''}
+                
+                <button onclick="showDoctorDetails('${doctor.id}')" class="w-full bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors mt-4">
+                    👁️ عرض التفاصيل
+                </button>
+            `;
+            
+            return card;
+        }
+
+        function getDayName(day) {
+            const dayNames = {
+                'saturday': 'سبت',
+                'sunday': 'أحد',
+                'monday': 'اثنين',
+                'tuesday': 'ثلاثاء',
+                'wednesday': 'أربعاء',
+                'thursday': 'خميس',
+                'friday': 'جمعة'
+            };
+            return dayNames[day] || day;
+        }
+
+        function generateSpecialtyFilters() {
+            const specialties = [...new Set(doctors.map(doctor => doctor.specialty))];
+            const container = document.getElementById('specialtyFilters');
+            
+            container.innerHTML = `
+                <button class="filter-btn active" data-specialty="all" onclick="toggleSpecialtyFilter(this)">الكل</button>
+                ${specialties.map(specialty => `
+                    <button class="filter-btn" data-specialty="${specialty}" onclick="toggleSpecialtyFilter(this)">${specialty}</button>
+                `).join('')}
+            `;
+        }
+
+        function toggleSpecialtyFilter(button) {
+            // Remove active from all specialty filters
+            document.querySelectorAll('#specialtyFilters .filter-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Add active to clicked button
+            button.classList.add('active');
+            
+            // Update filter
+            currentFilters.specialty = button.dataset.specialty;
+            filterDoctors();
+        }
+
+        function toggleShiftFilter(button) {
+            // Remove active from all shift filters
+            document.querySelectorAll('.filter-btn[data-shift]').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Add active to clicked button
+            button.classList.add('active');
+            
+            // Update filter
+            currentFilters.shift = button.dataset.shift;
+            filterDoctors();
+        }
+
+        function filterDoctors() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const selectedDate = document.getElementById('dateFilter').value;
+            
+            filteredDoctors = doctors.filter(doctor => {
+                // Search filter
+                const matchesSearch = !searchTerm || 
+                    doctor.name.toLowerCase().includes(searchTerm) ||
+                    doctor.specialty.toLowerCase().includes(searchTerm);
+                
+                // Specialty filter
+                const matchesSpecialty = currentFilters.specialty === 'all' || 
+                    doctor.specialty === currentFilters.specialty;
+                
+                // Shift filter
+                const matchesShift = currentFilters.shift === 'all' || 
+                    doctor.shift === currentFilters.shift;
+                
+                // Date filter (check if doctor works on selected day)
+                let matchesDate = true;
+                if (selectedDate) {
+                    const selectedDay = new Date(selectedDate).toLocaleDateString('en-US', { weekday: 'long' }).toLowerCase();
+                    matchesDate = !doctor.workingDays || doctor.workingDays.includes(selectedDay);
+                }
+                
+                return matchesSearch && matchesSpecialty && matchesShift && matchesDate;
+            });
+            
+            displayDoctors();
+        }
+
+        function showDoctorDetails(doctorId) {
+            const doctor = doctors.find(d => d.id === doctorId);
+            if (!doctor) return;
+            
+            selectedDoctor = doctor;
+            const modal = document.getElementById('doctorModal');
+            const content = document.getElementById('modalContent');
+            
+            const shiftText = {
+                'morning': 'صباحي',
+                'evening': 'مسائي',
+                'both': 'الاثنين'
+            };
+            
+            content.innerHTML = `
+                <div class="text-center mb-6">
+                    <img src="${doctor.image || 'https://via.placeholder.com/150'}" alt="${doctor.name}" class="w-32 h-32 rounded-full mx-auto mb-4 object-cover">
+                    <h2 class="text-3xl font-bold text-gray-800 mb-2">${doctor.name}</h2>
+                    <div class="text-lg text-blue-600 font-semibold mb-2">${doctor.specialty}</div>
+                </div>
+                
+                <div class="space-y-4">
+                    ${doctor.phone ? `
+                        <div class="flex items-center gap-2 text-gray-700">
+                            <span class="text-xl">📞</span>
+                            <span>${doctor.phone}</span>
+                        </div>
+                    ` : ''}
+                    
+                    <div class="flex items-center gap-2 text-gray-700">
+                        <span class="text-xl">⏰</span>
+                        <span>الشيفت: ${shiftText[doctor.shift] || 'صباحي'}</span>
+                    </div>
+                    
+                    ${doctor.workingDays && doctor.workingDays.length > 0 ? `
+                        <div class="flex items-start gap-2 text-gray-700">
+                            <span class="text-xl">📅</span>
+                            <div>
+                                <div class="font-semibold mb-1">أيام العمل:</div>
+                                <div class="flex flex-wrap gap-1">
+                                    ${doctor.workingDays.map(day => `
+                                        <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-sm">${getDayName(day)}</span>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        </div>
+                    ` : ''}
+                    
+                    ${doctor.education ? `
+                        <div class="flex items-start gap-2 text-gray-700">
+                            <span class="text-xl">🎓</span>
+                            <div>
+                                <div class="font-semibold">المؤهلات:</div>
+                                <div>${doctor.education}</div>
+                            </div>
+                        </div>
+                    ` : ''}
+                    
+                    ${doctor.experience ? `
+                        <div class="flex items-start gap-2 text-gray-700">
+                            <span class="text-xl">🏥</span>
+                            <div>
+                                <div class="font-semibold">الخبرة:</div>
+                                <div>${doctor.experience}</div>
+                            </div>
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+            
+            modal.classList.remove('hidden');
+        }
+
+        function hideDoctorModal() {
+            document.getElementById('doctorModal').classList.add('hidden');
+            selectedDoctor = null;
+        }
+
+        function bookAppointment() {
+            if (!selectedDoctor) return;
+            
+            // Redirect to appointments page with doctor pre-selected
+            const url = `appointments.html?doctor=${encodeURIComponent(selectedDoctor.id)}`;
+            window.location.href = url;
+        }
+
+        function setupEventListeners() {
+            // Close modal on outside click
+            document.getElementById('doctorModal').addEventListener('click', (e) => {
+                if (e.target === e.currentTarget) {
+                    hideDoctorModal();
+                }
+            });
+            
+            // Close modal on escape key
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    hideDoctorModal();
+                }
+            });
+        }
+
+        // Initialize search on input
+        document.getElementById('searchInput').addEventListener('input', filterDoctors);
+    </script>
+</body>
+</html>

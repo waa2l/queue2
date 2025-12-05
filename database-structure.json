@@ -1,0 +1,305 @@
+{
+  "Realtime Database Structure": {
+    "users": {
+      "uid1": {
+        "email": "admin@example.com",
+        "role": "admin",
+        "createdAt": 1234567890000
+      },
+      "uid2": {
+        "email": "clinic1@example.com",
+        "role": "clinic",
+        "createdAt": 1234567890000
+      }
+    },
+    "clinics": {
+      "clinicId1": {
+        "name": "عيادة طب الأسرة",
+        "number": 1,
+        "password": "1234",
+        "currentNumber": 15,
+        "active": true,
+        "screenId": "screenId1",
+        "lastCall": 1234567890000,
+        "createdAt": 1234567890000
+      },
+      "clinicId2": {
+        "name": "عيادة الباطنة",
+        "number": 2,
+        "password": "5678",
+        "currentNumber": 8,
+        "active": true,
+        "screenId": "screenId1",
+        "lastCall": 1234567890000,
+        "createdAt": 1234567890000
+      }
+    },
+    "screens": {
+      "screenId1": {
+        "name": "الشاشة الرئيسية",
+        "number": 1,
+        "password": "screen123",
+        "active": true,
+        "createdAt": 1234567890000
+      },
+      "screenId2": {
+        "name": "شاشة الاستقبال",
+        "number": 2,
+        "password": "screen456",
+        "active": true,
+        "createdAt": 1234567890000
+      }
+    },
+    "calls": {
+      "callId1": {
+        "type": "specific",
+        "clinicId": "clinicId1",
+        "clientNumber": 15,
+        "timestamp": 1234567890000
+      },
+      "callId2": {
+        "type": "emergency",
+        "clinicId": "clinicId2",
+        "timestamp": 1234567890000
+      }
+    },
+    "alerts": {
+      "alertId1": {
+        "message": "تنبيه عام للجميع",
+        "type": "general",
+        "timestamp": 1234567890000
+      }
+    },
+    "adminAlerts": {
+      "adminAlertId1": {
+        "message": "تنبيه من الإدارة",
+        "from": "admin@example.com",
+        "timestamp": 1234567890000
+      }
+    },
+    "transfers": {
+      "transferId1": {
+        "clientNumber": 10,
+        "fromClinic": "clinicId1",
+        "fromClinicName": "عيادة طب الأسرة",
+        "toClinic": "clinicId2",
+        "toClinicName": "عيادة الباطنة",
+        "timestamp": 1234567890000
+      }
+    },
+    "settings": {
+      "general": {
+        "centerName": "مركز الصحة الطبي",
+        "newsTicker": "مرحباً بكم في مركزنا، نتمنى لكم الشفاء العاجل",
+        "alertDuration": 5,
+        "speechRate": 1.0,
+        "audioPath": "./audio/"
+      },
+      "appointments": {
+        "morningSlots": 20,
+        "eveningSlots": 15,
+        "morningStart": "08:00",
+        "morningEnd": "14:00",
+        "eveningStart": "14:00",
+        "eveningEnd": "20:00"
+      },
+      "video": {
+        "autoPlay": true,
+        "loop": true,
+        "shuffle": false,
+        "playlistId": "PLrAXtmErZgOeiKm4sgNOknGvNjby9efdf"
+      }
+    },
+    "videos": {
+      "videoId1": {
+        "url": "https://www.youtube.com/watch?v=example1",
+        "title": "فيديو توعية 1",
+        "addedAt": 1234567890000
+      }
+    },
+    "logs": {
+      "clinicId1": {
+        "logId1": {
+          "action": "العميل التالي",
+          "details": "رقم 15",
+          "timestamp": 1234567890000,
+          "user": "clinic1@example.com"
+        }
+      }
+    },
+    "statistics": {
+      "clinicId1": {
+        "2024-12-05": {
+          "served": 25,
+          "waiting": 5,
+          "avgWaitTime": 12
+        }
+      }
+    },
+    "clientContacts": {
+      "clinicId1_15": {
+        "clinicId": "clinicId1",
+        "clientNumber": 15,
+        "email": "client@example.com",
+        "phone": "+201001234567",
+        "timestamp": 1234567890000
+      }
+    },
+    "complaints": {
+      "complaintId1": {
+        "type": "complaint",
+        "name": "أحمد محمد",
+        "phone": "+201001234567",
+        "email": "ahmed@example.com",
+        "text": "الانتظار طويل جداً في العيادة",
+        "notes": "يرجى تحسين نظام الانتظار",
+        "clinicId": "clinicId1",
+        "clientNumber": 15,
+        "timestamp": 1234567890000,
+        "status": "pending"
+      }
+    },
+    "consultations": {
+      "consultationId1": {
+        "sessionId": "session_1234567890_abc123",
+        "userMessage": "ما هي أعراض نزلة البرد؟",
+        "botResponse": "أعراض نزلة البرد تشمل...",
+        "timestamp": 1234567890000,
+        "date": "5/12/2024",
+        "time": "10:30:45 ص"
+      }
+    }
+  },
+  "Firestore Collections": {
+    "doctors": {
+      "doctorId1": {
+        "name": "د. أحمد محمد",
+        "phone": "+201001234567",
+        "specialty": "طبيب أسرة",
+        "image": "https://example.com/doctor1.jpg",
+        "workingDays": ["saturday", "sunday", "monday", "tuesday", "wednesday"],
+        "shift": "morning",
+        "active": true,
+        "createdAt": "2024-12-05T10:30:00Z",
+        "education": "بكالوريوس الطب والجراحة - جامعة القاهرة",
+        "experience": "15 عاماً في طب الأسرة"
+      },
+      "doctorId2": {
+        "name": "د. فاطمة علي",
+        "phone": "+201009876543",
+        "specialty": "طبيبة باطنة",
+        "image": "https://example.com/doctor2.jpg",
+        "workingDays": ["sunday", "tuesday", "thursday"],
+        "shift": "evening",
+        "active": true,
+        "createdAt": "2024-12-05T11:00:00Z",
+        "education": "بكالوريوس الطب - جامعة عين شمس",
+        "experience": "12 عاماً في الباطنة"
+      }
+    },
+    "appointments": {
+      "appointmentId1": {
+        "clientName": "محمد أحمد",
+        "nationalId": "12345678901234",
+        "phoneNumber": "+201112223333",
+        "clinicId": "clinicId1",
+        "clinicName": "عيادة طب الأسرة",
+        "visitReason": "كشف دوري",
+        "date": "2024-12-06",
+        "time": "09:00",
+        "timestamp": 1234567890000,
+        "status": "confirmed"
+      }
+    }
+  },
+  "Storage Structure": {
+    "audio": {
+      "ding.mp3": "صوت النداء الرئيسي",
+      "1.mp3": "على العميل رقم واحد",
+      "2.mp3": "على العميل رقم اثنين",
+      "...": "...",
+      "200.mp3": "على العميل رقم مائتان",
+      "clinic1.mp3": "التوجه إلى عيادة طب الأسرة",
+      "clinic2.mp3": "التوجه إلى عيادة الباطنة",
+      "...": "...",
+      "clinic20.mp3": "التوجه إلى عيادة التحاليل",
+      "instant1.mp3": "أهلاً وسهلاً بكم في المركز الطبي",
+      "instant2.mp3": "رجاء الانتظار في الصالة المخصصة",
+      "...": "...",
+      "instant10.mp3": "لأي استفسارات، يرجى التوجه إلى مكتب الاستقبال"
+    },
+    "images": {
+      "doctors": {
+        "doctor1.jpg": "صورة الدكتور أحمد محمد",
+        "doctor2.jpg": "صورة الدكتورة فاطمة علي",
+        "...": "..."
+      },
+      "center": {
+        "logo.png": "شعار المركز",
+        "banner.jpg": "بانر الصفحة الرئيسية",
+        "background.jpg": "خلفية النظام"
+      }
+    },
+    "videos": {
+      "awareness1.mp4": "فيديو توعية صحية 1",
+      "awareness2.mp4": "فيديو توعية صحية 2",
+      "...": "..."
+    }
+  },
+  "Security Rules": {
+    "Authentication": {
+      "admin": "التحكم الكامل في النظام",
+      "clinic": "التحكم في عيادته فقط",
+      "display": "عرض الشاشات فقط"
+    },
+    "Database Rules": {
+      "users": "فقط المستخدم نفسه أو الأدمن",
+      "clinics": "الأدمن أو مسؤول العيادة",
+      "screens": "الأدمن فقط",
+      "calls": "جميع المستخدمين",
+      "alerts": "جميع المستخدمين",
+      "adminAlerts": "الأدمن فقط",
+      "transfers": "جميع المستخدمين",
+      "settings": "الأدمن فقط",
+      "videos": "الأدمن فقط",
+      "logs": "الأدمن أو مسؤول العيادة",
+      "statistics": "الأدمن أو مسؤول العيادة",
+      "clientContacts": "جميع المستخدمين",
+      "complaints": "الأدمن فقط للقراءة، الجميع للكتابة",
+      "consultations": "المستخدم نفسه فقط"
+    }
+  },
+  "API Endpoints": {
+    "Firebase Auth": {
+      "signUp": "إنشاء حساب جديد",
+      "signIn": "تسجيل الدخول",
+      "signOut": "تسجيل الخروج",
+      "resetPassword": "إعادة تعيين كلمة المرور"
+    },
+    "Realtime Database": {
+      "getClinics": "الحصول على قائمة العيادات",
+      "updateClinicNumber": "تحديث رقم العيادة",
+      "getScreens": "الحصول على قائمة الشاشات",
+      "addCall": "إضافة نداء جديد",
+      "getSettings": "الحصول على الإعدادات",
+      "updateSettings": "تحديث الإعدادات"
+    },
+    "Firestore": {
+      "getDoctors": "الحصول على قائمة الأطباء",
+      "addDoctor": "إضافة طبيب جديد",
+      "updateDoctor": "تحديث بيانات الطبيب",
+      "deleteDoctor": "حذف طبيب",
+      "getAppointments": "الحصول على المواعيد",
+      "addAppointment": "إضافة موعد جديد",
+      "updateAppointment": "تحديث موعد",
+      "deleteAppointment": "حذف موعد"
+    },
+    "Storage": {
+      "uploadAudio": "رفع ملفات الصوت",
+      "uploadImage": "رفع الصور",
+      "uploadVideo": "رفع الفيديوهات",
+      "getFiles": "الحصول على قائمة الملفات",
+      "deleteFile": "حذف ملف"
+    }
+  }
+}

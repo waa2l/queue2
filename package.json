@@ -1,0 +1,57 @@
+{
+  "name": "smart-queue-management-system",
+  "version": "2.0.0",
+  "description": "نظام إدارة الانتظار الذكي - حل متكامل لتنظيم طوابير العملاء والمرضى باللغة العربية",
+  "main": "index.html",
+  "scripts": {
+    "start": "firebase serve",
+    "build": "echo 'Build script for static files'",
+    "deploy": "firebase deploy",
+    "deploy:hosting": "firebase deploy --only hosting",
+    "deploy:database": "firebase deploy --only database",
+    "deploy:firestore": "firebase deploy --only firestore",
+    "deploy:storage": "firebase deploy --only storage",
+    "deploy:auth": "firebase deploy --only auth",
+    "test": "echo 'No tests specified'",
+    "lint": "echo 'No linter configured'",
+    "format": "echo 'No formatter configured'"
+  },
+  "keywords": [
+    "queue-management",
+    "medical-center",
+    "patient-management",
+    "arabic-software",
+    "firebase",
+    "realtime-database",
+    "screen-display",
+    "audio-calling",
+    "appointment-system",
+    "consultation-system"
+  ],
+  "author": "Smart Queue Management Team",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-username/smart-queue-management-system.git"
+  },
+  "bugs": {
+    "url": "https://github.com/your-username/smart-queue-management-system/issues"
+  },
+  "homepage": "https://github.com/your-username/smart-queue-management-system#readme",
+  "devDependencies": {
+    "firebase-tools": "^13.0.0"
+  },
+  "dependencies": {
+    "firebase": "^10.7.0"
+  },
+  "engines": {
+    "node": ">=16.0.0",
+    "npm": ">=8.0.0"
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions",
+    "not dead",
+    "not ie 11"
+  ]
+}

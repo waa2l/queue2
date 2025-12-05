@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>صفحة الطباعة - نظام إدارة الانتظار</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        @media print {
+            body { margin: 0; padding: 0; }
+            .no-print { display: none !important; }
+            .print-grid {
+                display: grid !important;
+                grid-template-columns: repeat(4, 1fr) !important;
+                gap: 1rem !important;
+                padding: 1rem !important;
+            }
+            .print-ticket {
+                border: 2px solid #333 !important;
+                padding: 0.5rem !important;
+                text-align: center !important;
+                page-break-inside: avoid !important;
+                width: 5cm !important;
+                height: 3cm !important;
+                display: flex !important;
+                flex-direction: column !important;
+                justify-content: center !important;
+                align-items: center !important;
+                font-size: 12px !important;
+            }
+        }
+        
+        .print-ticket {
+            background: white;
+            border: 2px dashed #ccc;
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 0.5rem;
+            text-align: center;
+            min-height: 120px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+        
+        .print-ticket:hover {
+            border-color: #3b82f6;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .ticket-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #1f2937;
+            margin-bottom: 0.5rem;
+        }
+        
+        .ticket-center {
+            font-size: 0.9rem;
+            color: #6b7280;
+            margin-bottom: 0.25rem;
+        }
+        
+        .ticket-date {
+            font-size: 0.8rem;
+            color: #9ca3af;
+        }
+        
+        .ticket-wait {
+            font-size: 0.7rem;
+            color: #ef4444;
+            margin-top: 0.25rem;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-lg no-print">
+        <div class="container mx-auto px-6 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <h1 class="text-2xl font-bold text-gray-800">صفحة الطباعة</h1>
+                </div>
+                <div class="flex space-x-4">
+                    <button onclick="window.print()" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+                        🖨️ طباعة
+                    </button>
+                    <a href="index.html" class="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors">
+                        الرئيسية
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container mx-auto px-6 py-8 no-print">
+        <!-- Clinic Selection -->
+        <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
+            <h2 class="text-2xl font-bold text-gray-800 mb-4">إعدادات الطباعة</h2>
+            <div class="grid md:grid-cols-4 gap-4">
+                <div class="form-group">
+                    <label class="form-label">اختر العيادة</label>
+                    <select id="clinicSelect" class="form-input" onchange="updatePrintRange()">
+                        <option value="">اختر العيادة</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">من رقم</label>
+                    <input type="number" id="startNumber" class="form-input" min="1" value="1">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">إلى رقم</label>
+                    <input type="number" id="endNumber" class="form-input" min="1" value="20">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">مركز الطباعة</label>
+                    <input type="text" id="centerName" class="form-input" value="مركز الطب" readonly>
+                </div>
+            </div>
+            <div class="flex gap-4 mt-4">
+                <button onclick="generateTickets()" class="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors font-semibold">
+                    توليد التذاكر
+                </button>
+                <button onclick="clearTickets()" class="bg-red-600 text-white px-6 py-3 rounded-lg hover:bg-red-700 transition-colors font-semibold">
+                    مسح التذاكر
+                </button>
+                <button onclick="previewPrint()" class="bg-purple-600 text-white px-6 py-3 rounded-lg hover:bg-purple-700 transition-colors font-semibold">
+                    معاينة قبل الطباعة
+                </button>
+            </div>
+        </div>
+
+        <!-- Print Preview -->
+        <div class="bg-white rounded-xl shadow-lg p-6">
+            <h2 class="text-2xl font-bold text-gray-800 mb-4">معاينة التذاكر</h2>
+            <div id="printPreview" class="min-h-96 border-2 border-dashed border-gray-300 rounded-lg p-4">
+                <div class="text-center text-gray-500 mt-20">
+                    <div class="text-6xl mb-4">🎫</div>
+                    <p class="text-xl">اختر العيادة وحدد النطاق لتوليد التذاكر</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Print Area -->
+    <div id="printArea" class="print-grid hidden">
+        <!-- Tickets will be generated here for printing -->
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="firebase-config.js"></script>
+    <script>
+        let clinics = {};
+        let currentCenterName = 'مركز الطب';
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', () => {
+            loadClinics();
+            loadCenterSettings();
+        });
+
+        function loadClinics() {
+            database.ref('clinics').on('value', (snapshot) => {
+                clinics = snapshot.val() || {};
+                updateClinicSelector();
+            });
+        }
+
+        function loadCenterSettings() {
+            database.ref('settings/general/centerName').once('value', (snapshot) => {
+                currentCenterName = snapshot.val() || 'مركز الطب';
+                document.getElementById('centerName').value = currentCenterName;
+            });
+        }
+
+        function updateClinicSelector() {
+            const selector = document.getElementById('clinicSelect');
+            selector.innerHTML = '<option value="">اختر العيادة</option>';
+            
+            Object.entries(clinics).forEach(([clinicId, clinic]) => {
+                const option = document.createElement('option');
+                option.value = clinicId;
+                option.textContent = `${clinic.name} (${toArabicNumber(clinic.number)})`;
+                selector.appendChild(option);
+            });
+        }
+
+        function updatePrintRange() {
+            const clinicId = document.getElementById('clinicSelect').value;
+            if (clinicId && clinics[clinicId]) {
+                const clinic = clinics[clinicId];
+                const currentNumber = clinic.currentNumber || 0;
+                
+                // Set range based on current clinic status
+                document.getElementById('startNumber').value = currentNumber + 1;
+                document.getElementById('endNumber').value = currentNumber + 20;
+            }
+        }
+
+        function generateTickets() {
+            const clinicId = document.getElementById('clinicSelect').value;
+            const startNumber = parseInt(document.getElementById('startNumber').value);
+            const endNumber = parseInt(document.getElementById('endNumber').value);
+            const centerName = document.getElementById('centerName').value;
+
+            if (!clinicId || !clinics[clinicId]) {
+                showNotification('الرجاء اختيار عيادة صحيحة', 'error');
+                return;
+            }
+
+            if (!startNumber || !endNumber || startNumber > endNumber) {
+                showNotification('الرجاء إدخال نطاق أرقام صحيح', 'error');
+                return;
+            }
+
+            const clinic = clinics[clinicId];
+            const now = new Date();
+            const dateString = now.toLocaleDateString('ar-EG');
+            const timeString = now.toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' });
+
+            // Clear previous tickets
+            clearTickets();
+
+            // Generate tickets
+            const printArea = document.getElementById('printArea');
+            const printPreview = document.getElementById('printPreview');
+            
+            printPreview.innerHTML = '';
+            
+            for (let i = startNumber; i <= endNumber; i++) {
+                const ticket = createTicket(i, clinic.name, centerName, dateString, timeString);
+                printArea.appendChild(ticket.cloneNode(true));
+                printPreview.appendChild(ticket);
+            }
+
+            showNotification(`تم توليد ${toArabicNumber(endNumber - startNumber + 1)} تذكرة`, 'success');
+        }
+
+        function createTicket(number, clinicName, centerName, date, time) {
+            const ticket = document.createElement('div');
+            ticket.className = 'print-ticket';
+            
+            const waitTime = Math.floor(Math.random() * 30) + 15; // Random wait time 15-45 minutes
+            
+            ticket.innerHTML = `
+                <div class="ticket-number">${toArabicNumber(number)}</div>
+                <div class="ticket-center">${centerName}</div>
+                <div class="ticket-center">${clinicName}</div>
+                <div class="ticket-date">${date} - ${time}</div>
+                <div class="ticket-wait">الوقت المتوقع: ${toArabicNumber(waitTime)} دقيقة</div>
+            `;
+            
+            return ticket;
+        }
+
+        function clearTickets() {
+            document.getElementById('printArea').innerHTML = '';
+            document.getElementById('printPreview').innerHTML = `
+                <div class="text-center text-gray-500 mt-20">
+                    <div class="text-6xl mb-4">🎫</div>
+                    <p class="text-xl">اختر العيادة وحدد النطاق لتوليد التذاكر</p>
+                </div>
+            `;
+        }
+
+        function previewPrint() {
+            const printArea = document.getElementById('printArea');
+            if (printArea.children.length === 0) {
+                showNotification('الرجاء توليد التذاكر أولاً', 'error');
+                return;
+            }
+
+            // Create preview window
+            const previewWindow = window.open('', '_blank');
+            const previewContent = `
+                <!DOCTYPE html>
+                <html dir="rtl">
+                <head>
+                    <title>معاينة الطباعة</title>
+                    <style>
+                        body { margin: 0; padding: 20px; font-family: 'Cairo', sans-serif; }
+                        .print-grid {
+                            display: grid;
+                            grid-template-columns: repeat(4, 1fr);
+                            gap: 1rem;
+                            padding: 1rem;
+                        }
+                        .print-ticket {
+                            border: 2px solid #333;
+                            padding: 0.5rem;
+                            text-align: center;
+                            page-break-inside: avoid;
+                            width: 5cm;
+                            height: 3cm;
+                            display: flex;
+                            flex-direction: column;
+                            justify-content: center;
+                            align-items: center;
+                            font-size: 12px;
+                        }
+                        .ticket-number { font-size: 24px; font-weight: bold; margin-bottom: 4px; }
+                        .ticket-center { font-size: 10px; margin-bottom: 2px; }
+                        .ticket-date { font-size: 9px; }
+                        .ticket-wait { font-size: 8px; color: #ef4444; margin-top: 2px; }
+                    </style>
+                </head>
+                <body>
+                    <div class="print-grid">
+                        ${printArea.innerHTML}
+                    </div>
+                    <div style="text-align: center; margin-top: 2rem;">
+                        <button onclick="window.print()" style="background: #3b82f6; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer;">
+                            طباعة
+                        </button>
+                        <button onclick="window.close()" style="background: #6b7280; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; margin-right: 10px;">
+                            إغلاق
+                        </button>
+                    </div>
+                </body>
+                </html>
+            `;
+            
+            previewWindow.document.write(previewContent);
+            previewWindow.document.close();
+        }
+
+        // Print event handling
+        window.addEventListener('beforeprint', () => {
+            document.body.classList.add('printing');
+        });
+
+        window.addEventListener('afterprint', () => {
+            document.body.classList.remove('printing');
+        });
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (e.ctrlKey && e.key === 'p') {
+                e.preventDefault();
+                window.print();
+            }
+            
+            if (e.key === 'Escape') {
+                window.parent.postMessage('close-print-page', '*');
+            }
+        });
+    </script>
+</body>
+</html>

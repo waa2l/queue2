@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>اختبار النظام - نظام إدارة الانتظار</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="bg-gray-50">
+    <div class="container mx-auto px-6 py-12">
+        <div class="max-w-4xl mx-auto">
+            <div class="text-center mb-12">
+                <h1 class="text-4xl font-bold text-gray-800 mb-4">اختبار النظام</h1>
+                <p class="text-gray-600">اختبار وظائف النظام الأساسية</p>
+            </div>
+
+            <!-- Test Navigation -->
+            <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6">روابط الصفحات</h2>
+                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <a href="index.html" class="bg-blue-500 text-white p-4 rounded-lg text-center hover:bg-blue-600 transition-colors">
+                        <div class="text-2xl mb-2">🏠</div>
+                        <h3 class="font-semibold">الصفحة الرئيسية</h3>
+                    </a>
+                    <a href="admin.html" class="bg-green-500 text-white p-4 rounded-lg text-center hover:bg-green-600 transition-colors">
+                        <div class="text-2xl mb-2">⚙️</div>
+                        <h3 class="font-semibold">لوحة الإدارة</h3>
+                    </a>
+                    <a href="display.html" class="bg-purple-500 text-white p-4 rounded-lg text-center hover:bg-purple-600 transition-colors">
+                        <div class="text-2xl mb-2">📺</div>
+                        <h3 class="font-semibold">شاشة العرض</h3>
+                    </a>
+                    <a href="control.html" class="bg-red-500 text-white p-4 rounded-lg text-center hover:bg-red-600 transition-colors">
+                        <div class="text-2xl mb-2">🎛️</div>
+                        <h3 class="font-semibold">لوحة التحكم</h3>
+                    </a>
+                    <a href="client.html" class="bg-indigo-500 text-white p-4 rounded-lg text-center hover:bg-indigo-600 transition-colors">
+                        <div class="text-2xl mb-2">👤</div>
+                        <h3 class="font-semibold">صفحة العميل</h3>
+                    </a>
+                    <a href="appointments.html" class="bg-yellow-500 text-white p-4 rounded-lg text-center hover:bg-yellow-600 transition-colors">
+                        <div class="text-2xl mb-2">📅</div>
+                        <h3 class="font-semibold">حجز المواعيد</h3>
+                    </a>
+                    <a href="doctors.html" class="bg-pink-500 text-white p-4 rounded-lg text-center hover:bg-pink-600 transition-colors">
+                        <div class="text-2xl mb-2">👨‍⚕️</div>
+                        <h3 class="font-semibold">الأطباء</h3>
+                    </a>
+                    <a href="consultation.html" class="bg-teal-500 text-white p-4 rounded-lg text-center hover:bg-teal-600 transition-colors">
+                        <div class="text-2xl mb-2">💬</div>
+                        <h3 class="font-semibold">الاستشارات</h3>
+                    </a>
+                    <a href="print.html" class="bg-orange-500 text-white p-4 rounded-lg text-center hover:bg-orange-600 transition-colors">
+                        <div class="text-2xl mb-2">🖨️</div>
+                        <h3 class="font-semibold">الطباعة</h3>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Firebase Configuration Test -->
+            <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6">اختبار Firebase</h2>
+                <div id="firebaseTest" class="space-y-4">
+                    <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                        <span>اتصال Firebase:</span>
+                        <span id="firebaseStatus" class="text-red-500">❌ غير متصل</span>
+                    </div>
+                    <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                        <span>Authentication:</span>
+                        <span id="authStatus" class="text-red-500">❌ غير مفعل</span>
+                    </div>
+                    <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                        <span>Realtime Database:</span>
+                        <span id="databaseStatus" class="text-red-500">❌ غير متصل</span>
+                    </div>
+                    <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                        <span>Firestore:</span>
+                        <span id="firestoreStatus" class="text-red-500">❌ غير متصل</span>
+                    </div>
+                </div>
+                <button onclick="testFirebase()" class="mt-4 bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 transition-colors">
+                    اختبار الاتصال
+                </button>
+            </div>
+
+            <!-- Audio Test -->
+            <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6">اختبار الصوت</h2>
+                <div class="space-y-4">
+                    <button onclick="playDing()" class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors">
+                        🔊 اختبار صوت النداء
+                    </button>
+                    <button onclick="playNumber(1)" class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors">
+                        🔊 اختبار رقم 1
+                    </button>
+                    <button onclick="playClinic(1)" class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors">
+                        🔊 اختبار عيادة 1
+                    </button>
+                </div>
+            </div>
+
+            <!-- Arabic Numbers Test -->
+            <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6">اختبار الأرقام العربية</h2>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div class="p-4 bg-gray-50 rounded-lg text-center">
+                        <div class="text-2xl font-bold text-blue-600" id="number1">1</div>
+                        <div class="text-sm text-gray-600">رقم 1</div>
+                    </div>
+                    <div class="p-4 bg-gray-50 rounded-lg text-center">
+                        <div class="text-2xl font-bold text-blue-600" id="number2">2</div>
+                        <div class="text-sm text-gray-600">رقم 2</div>
+                    </div>
+                    <div class="p-4 bg-gray-50 rounded-lg text-center">
+                        <div class="text-2xl font-bold text-blue-600" id="number3">3</div>
+                        <div class="text-sm text-gray-600">رقم 3</div>
+                    </div>
+                    <div class="p-4 bg-gray-50 rounded-lg text-center">
+                        <div class="text-2xl font-bold text-blue-600" id="number4">4</div>
+                        <div class="text-sm text-gray-600">رقم 4</div>
+                    </div>
+                </div>
+                <button onclick="testArabicNumbers()" class="mt-4 bg-purple-500 text-white px-6 py-2 rounded-lg hover:bg-purple-600 transition-colors">
+                    تحويل إلى أرقام عربية
+                </button>
+            </div>
+
+            <!-- System Info -->
+            <div class="bg-white rounded-xl shadow-lg p-6">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6">معلومات النظام</h2>
+                <div class="space-y-2">
+                    <div class="flex justify-between">
+                        <span>الإصدار:</span>
+                        <span class="font-semibold">2.0.0</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span>تاريخ الإصدار:</span>
+                        <span class="font-semibold">5 ديسمبر 2024</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span>اللغة:</span>
+                        <span class="font-semibold">العربية</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span>الترخيص:</span>
+                        <span class="font-semibold">MIT</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="firebase-config.js"></script>
+    <script>
+        // Test Firebase Connection
+        function testFirebase() {
+            // Test Firebase App
+            try {
+                if (firebase.apps.length > 0) {
+                    document.getElementById('firebaseStatus').innerHTML = '<span class="text-green-500">✅ متصل</span>';
+                } else {
+                    document.getElementById('firebaseStatus').innerHTML = '<span class="text-red-500">❌ غير متصل</span>';
+                }
+            } catch (error) {
+                document.getElementById('firebaseStatus').innerHTML = '<span class="text-red-500">❌ خطأ في الاتصال</span>';
+                console.error('Firebase App Error:', error);
+            }
+
+            // Test Authentication
+            try {
+                if (typeof auth !== 'undefined') {
+                    document.getElementById('authStatus').innerHTML = '<span class="text-green-500">✅ مفعل</span>';
+                } else {
+                    document.getElementById('authStatus').innerHTML = '<span class="text-red-500">❌ غير مفعل</span>';
+                }
+            } catch (error) {
+                document.getElementById('authStatus').innerHTML = '<span class="text-red-500">❌ خطأ في المصادقة</span>';
+                console.error('Auth Error:', error);
+            }
+
+            // Test Realtime Database
+            try {
+                if (typeof database !== 'undefined') {
+                    document.getElementById('databaseStatus').innerHTML = '<span class="text-green-500">✅ متصل</span>';
+                } else {
+                    document.getElementById('databaseStatus').innerHTML = '<span class="text-red-500">❌ غير متصل</span>';
+                }
+            } catch (error) {
+                document.getElementById('databaseStatus').innerHTML = '<span class="text-red-500">❌ خطأ في قاعدة البيانات</span>';
+                console.error('Database Error:', error);
+            }
+
+            // Test Firestore
+            try {
+                if (typeof firestore !== 'undefined') {
+                    document.getElementById('firestoreStatus').innerHTML = '<span class="text-green-500">✅ متصل</span>';
+                } else {
+                    document.getElementById('firestoreStatus').innerHTML = '<span class="text-red-500">❌ غير متصل</span>';
+                }
+            } catch (error) {
+                document.getElementById('firestoreStatus').innerHTML = '<span class="text-red-500">❌ خطأ في Firestore</span>';
+                console.error('Firestore Error:', error);
+            }
+        }
+
+        // Test Audio
+        function playDing() {
+            try {
+                const audio = new Audio('audio/ding.mp3');
+                audio.play().catch(e => console.error('Audio Error:', e));
+            } catch (error) {
+                console.error('Ding Audio Error:', error);
+                alert('خطأ في تشغيل الصوت. تأكد من وجود ملف ding.mp3');
+            }
+        }
+
+        function playNumber(number) {
+            try {
+                const audio = new Audio(`audio/${number}.mp3`);
+                audio.play().catch(e => console.error('Audio Error:', e));
+            } catch (error) {
+                console.error('Number Audio Error:', error);
+                alert(`خطأ في تشغيل الصوت. تأكد من وجود ملف ${number}.mp3`);
+            }
+        }
+
+        function playClinic(clinicNumber) {
+            try {
+                const audio = new Audio(`audio/clinic${clinicNumber}.mp3`);
+                audio.play().catch(e => console.error('Audio Error:', e));
+            } catch (error) {
+                console.error('Clinic Audio Error:', error);
+                alert(`خطأ في تشغيل الصوت. تأكد من وجود ملف clinic${clinicNumber}.mp3`);
+            }
+        }
+
+        // Test Arabic Numbers
+        function testArabicNumbers() {
+            for (let i = 1; i <= 4; i++) {
+                const element = document.getElementById(`number${i}`);
+                if (element && typeof toArabicNumber === 'function') {
+                    element.textContent = toArabicNumber(i);
+                }
+            }
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            testFirebase();
+            
+            // Test if functions are loaded
+            if (typeof toArabicNumber !== 'function') {
+                console.error('toArabicNumber function not found');
+            }
+            
+            if (typeof showNotification !== 'function') {
+                console.error('showNotification function not found');
+            }
+        });
+    </script>
+</body>
+</html>

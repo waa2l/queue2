@@ -1,0 +1,92 @@
+{
+  "hosting": {
+    "public": ".",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "rewrites": [
+      {
+        "source": "/admin",
+        "destination": "/admin.html"
+      },
+      {
+        "source": "/display",
+        "destination": "/display.html"
+      },
+      {
+        "source": "/control",
+        "destination": "/control.html"
+      },
+      {
+        "source": "/print",
+        "destination": "/print.html"
+      },
+      {
+        "source": "/client",
+        "destination": "/client.html"
+      },
+      {
+        "source": "/appointments",
+        "destination": "/appointments.html"
+      },
+      {
+        "source": "/doctors",
+        "destination": "/doctors.html"
+      },
+      {
+        "source": "/consultation",
+        "destination": "/consultation.html"
+      },
+      {
+        "source": "/about",
+        "destination": "/about.html"
+      },
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
+    ],
+    "headers": [
+      {
+        "source": "**/*.@(js|css)",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "max-age=31536000"
+          }
+        ]
+      },
+      {
+        "source": "**/*.@(jpg|jpeg|png|gif|webp|svg|mp3|mp4|wav|avi)",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "max-age=31536000"
+          }
+        ]
+      },
+      {
+        "source": "**/*.@(html|htm)",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "no-cache, no-store, must-revalidate"
+          }
+        ]
+      }
+    ],
+    "cleanUrls": true,
+    "trailingSlash": false
+  },
+  "database": {
+    "rules": "firebase-rules.json"
+  },
+  "firestore": {
+    "rules": "firebase-rules.json"
+  },
+  "storage": {
+    "rules": "firebase-rules.json"
+  }
+}
